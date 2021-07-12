@@ -31,9 +31,6 @@ class TriggerType:
     HARDWARE = 2
 
 
-CHOSEN_TRIGGER = TriggerType.HARDWARE
-
-
 def ConfigureTrigger(cam_params, camera):
     """
     This function configures the camera to use a trigger. First, trigger mode is
@@ -47,10 +44,15 @@ def ConfigureTrigger(cam_params, camera):
     """
 
     print('*** CONFIGURING TRIGGER ***\n')
-    if CHOSEN_TRIGGER == TriggerType.SOFTWARE:
+    if cam_params['triggerType'] == 'software':
+        CHOSEN_TRIGGER = TriggerType.SOFTWARE
         print('Software trigger chosen...')
-    elif CHOSEN_TRIGGER == TriggerType.HARDWARE:
+    elif cam_params['triggerType'] == 'hardware':
+        CHOSEN_TRIGGER = TriggerType.HARDWARE
         print('Hardware trigger chosen...')
+    else:
+        print('triggerType must be either "software" or "hardware"')
+        return False
 
     try:
         result = True

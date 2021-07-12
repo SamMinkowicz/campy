@@ -3,7 +3,7 @@ CamPy: Python-based multi-camera recording software.
 Integrates machine vision camera APIs with ffmpeg real-time compression.
 Outputs one MP4 video file for each camera and metadata files
 
-'campy' is the main console. 
+'campy' is the main console.
 User inputs are loaded from config yaml file using a command line interface (CLI) into the 'params' dictionary.
 Params are assigned to each camera stream in the 'cam_params' dictionary.
 	* Camera index is set by 'cameraSelection'.
@@ -11,7 +11,7 @@ Params are assigned to each camera stream in the 'cam_params' dictionary.
 	* If param is list of strings, it is assigned to each camera, ordered by camera index.
 Camera streams are acquired and encoded in parallel using multiprocessing.
 
-Usage: 
+Usage:
 campy-acquire ./configs/config.yaml
 """
 import numpy as np
@@ -295,6 +295,12 @@ def ParseClargs(parser):
         help="Frame grabbing timeout in milliseconds. Only used for FLIR cameras. If camera doesn't receive frames"
              "for this amount of time, it will stop the recording.",
     )
+    parser.add_argument(
+        "--triggerType",
+        dest="triggerType",
+        type=str,
+        help="Trigger type. Only used for FLIR cameras",
+    )
     clargs = parser.parse_args()
     return clargs
 
@@ -344,9 +350,10 @@ def AcquireOneCamera(n_cam):
     parent = os.path.split(folder_name)[0]
     timestamp = f"{datetime.datetime.now():%Y-%m-%d-%H-%M}"
 
-    for file in os.listdir(folder_name):
-        file_abs_path = os.path.join(folder_name, file)
-        new_filename = os.path.join(parent, cam_params["cameraName"] + '_' + timestamp + '_' + file)
+    for f in os.listdir(folder_name):
+        file_abs_path = os.path.join(folder_name, f)
+        new_filename = os.path.join(parent,
+                '_'.join((cam_params["cameraName"], timestamp, f)))
         move(file_abs_path, new_filename)
     os.rmdir(folder_name)
 
