@@ -172,7 +172,7 @@ def SaveMetadata(cam_params, grabdata):
         meta = cam_params
         try:
             npy_filename = os.path.join(full_folder_name, 'frametimes.npy')
-            pd_filename = npy_filename[:-3] + '.csv'
+            pd_filename = npy_filename[:-3] + 'csv'
             x = np.array([grabdata['frameNumber'], grabdata["cameraTime"], grabdata['timeStamp']])
             df = pd.DataFrame(data=x.T, columns=['frameNumber', 'cameraTime', 'timeStamp'])
             df = df.convert_dtypes({'frameNumber': 'int'})
