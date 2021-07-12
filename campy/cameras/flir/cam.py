@@ -434,10 +434,7 @@ def ConfigureCustomImageSettings(cam_params, nodemap):
             print("height_to_set is set to height_to_set = {}".format(height_to_set))
             cam_params["frameHeight"] = height_to_set
 
-        # ToDo: Get this value from the camera
         # ToDo: Reset the ROI back to default
-        max_w = 2448
-        max_h = 2048
 
         # Set maximum width
         #
@@ -448,6 +445,7 @@ def ConfigureCustomImageSettings(cam_params, nodemap):
         # increment. However, as these values are being set to the maximum,
         # there is no reason to check against the increment.
         node_width = PySpin.CIntegerPtr(nodemap.GetNode('Width'))
+        max_w = node_width.GetMax()
         if PySpin.IsAvailable(node_width) and PySpin.IsWritable(node_width):
             # width_to_set = node_width.GetMax()
             width_to_set = cam_params["frameWidth"]
@@ -474,6 +472,7 @@ def ConfigureCustomImageSettings(cam_params, nodemap):
         # A maximum is retrieved with the method GetMax(). A node's minimum and
         # maximum should always be a multiple of its increment.
         node_height = PySpin.CIntegerPtr(nodemap.GetNode('Height'))
+        max_h = node_height.GetMax()
         if PySpin.IsAvailable(node_height) and PySpin.IsWritable(node_height):
             # height_to_set = node_height.GetMax()
             height_to_set = cam_params["frameHeight"]
