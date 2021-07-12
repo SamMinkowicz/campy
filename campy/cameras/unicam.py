@@ -118,7 +118,7 @@ def GrabFrames(cam_params, device, writeQueue, dispQueue, stopQueue):
             # Grab image from camera buffer if available
             grabResult = cam.GrabFrame(camera, frameNumber, grabTimeOutInMilliseconds)
         except Exception as err:
-            print('No frames received for {} seconds!'.format(grabTimeOutInMilliseconds), err)
+            print('No frames received for {} seconds!'.format(grabTimeOutInMilliseconds / 1000), err)
             writeQueue.append('STOP')
             grabbing = False
             cam.CloseCamera(cam_params, camera, grabdata)
@@ -196,7 +196,7 @@ def SaveMetadata(cam_params, grabdata):
         except KeyboardInterrupt:
             break
 
-        print('Saved metadata.csv for {}'.format(cam_params['cameraName']))
+        print(f'Saved metadata.csv for {cam_params["cameraName"]}')
         break
 
 
