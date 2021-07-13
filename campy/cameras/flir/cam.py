@@ -383,10 +383,10 @@ def enableChunkDataPayloads(cam, chunkDataToRetreive, cam_name):
                 print(f'{chunk_str} not available\n')
                 result = False
             elif chunk_enable.GetValue() is True:
-                print(f'{chunk_str} enabled\n')
+                print(f'{chunk_str} enabled')
             elif PySpin.IsWritable(chunk_enable):
                 chunk_enable.SetValue(True)
-                print(f'{chunk_str} enabled\n')
+                print(f'{chunk_str} enabled')
             else:
                 print(f'{chunk_str} not writable\n')
                 result = False
@@ -498,6 +498,35 @@ def ConfigureCustomImageSettings(cam_params, nodemap, cam_name):
     return result, width_to_set, height_to_set
 
 
+def ConfigureAcquisitionMode(camera, cam_name):
+    """Set acquisition mode to continuous"""
+
+    print(f'\n*** CONFIGURING ACQUISITION MODE for {cam_name} *** \n')
+
+    try:
+        result = True
+
+        node_acquisition_mode = PySpin.CEnumerationPtr(
+            camera.GetNodeMap().GetNode('AcquisitionMode'))
+        if not PySpin.IsAvailable(node_acquisition_mode) or not PySpin.IsWritable(node_acquisition_mode):
+            print(f'Unable to set acquisition mode to continuous (node retrieval; camera {i}). Aborting... \n')
+            return False
+        node_acquisition_mode_continuous = node_acquisition_mode.GetEntryByName('Continuous')
+        if not PySpin.IsAvailable(node_acquisition_mode_continuous) or not PySpin.IsReadable(node_acquisition_mode_continuous):
+            print('Unable to set acquisition mode to continuous (entry \'continuous\' retrieval %d). \
+            Aborting... \n')
+            return False
+        acquisition_mode_continuous = node_acquisition_mode_continuous.GetValue()
+        node_acquisition_mode.SetIntValue(acquisition_mode_continuous)
+        print(f'Acquisition mode set to {acquisition_mode_continuous.GetDisplayName()}\n')
+
+    except PySpin.SpinnakerException as ex:
+        print(f'Error: {ex}')
+        return False
+
+    return result
+
+
 def PrintDeviceInfo(nodemap, cam_num):
     """
     This function prints the device information of the camera from the transport
@@ -571,19 +600,10 @@ def OpenCamera(cam_params, camera):
 
 def LoadSettings(cam_params, camera):
     cam_name = cam_params['cameraName']
-    # Set acquisition mode to continuous
-    node_acquisition_mode = PySpin.CEnumerationPtr(camera.GetNodeMap().GetNode('AcquisitionMode'))
-    if not PySpin.IsAvailable(node_acquisition_mode) or not PySpin.IsWritable(node_acquisition_mode):
-        print(f'Unable to set acquisition mode to continuous (node retrieval; camera {i}). Aborting... \n')
-        return False
-    node_acquisition_mode_continuous = node_acquisition_mode.GetEntryByName('Continuous')
-    if not PySpin.IsAvailable(node_acquisition_mode_continuous) or not PySpin.IsReadable(
-            node_acquisition_mode_continuous):
-        print('Unable to set acquisition mode to continuous (entry \'continuous\' retrieval %d). \
-        Aborting... \n')
-        return False
-    acquisition_mode_continuous = node_acquisition_mode_continuous.GetValue()
-    node_acquisition_mode.SetIntValue(acquisition_mode_continuous)
+
+    # set acquisition mode to continuous
+    acquisitionConfig = ConfigureAcquisitionMode(camera, cam_name=cam_name)
+    cam_params["acquisitionConfig"] = acquisitionConfig
 
     # Configure trigger
     trigConfig = ConfigureTrigger(cam_params, camera, cam_name=cam_name)
