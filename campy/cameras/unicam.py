@@ -165,6 +165,7 @@ def GrabFrames(cam_params, device, writeQueue, dispQueue, stopQueue):
 
 
 def SaveMetadata(cam_params, grabdata):
+    # TODO let user choose which metadata to collect
     full_folder_name = os.path.join(cam_params["videoFolder"], cam_params["cameraName"])
     # Zero timeStamps
     timeFirstGrab = grabdata["timeStamp"][0]

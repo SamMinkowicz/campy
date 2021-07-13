@@ -309,7 +309,7 @@ def configure_buffer(cam, bufferMode='OldestFirst', bufferSize=100):
     return result
 
 
-def enableChunkDataPayloads(cam):
+def enableChunkDataPayloads(cam, chunkDataToRetreive):
     """
     This function configures the camera to add chunk data to each image. It does
     this by enabling each type of chunk data before enabling chunk data mode.
@@ -321,7 +321,6 @@ def enableChunkDataPayloads(cam):
     :return: True if successful, False otherwise
     :rtype: bool
     """
-    # ToDo: Only enable requested chunks (eg. Timestamp and FrameID) for faster execution and lower memory print
     try:
         result = True
         print('\n*** CONFIGURING CHUNK DATA ***\n')
@@ -377,6 +376,10 @@ def enableChunkDataPayloads(cam):
                 continue
 
             chunk_selector.SetIntValue(chunk_selector_entry.GetValue())
+
+            # only enable the chunk data (metadata) of interest
+            if chunk_selector_entry.GetSymbolic() not in chunkDataToRetreive:
+                continue
 
             chunk_str = '\t {}:'.format(chunk_selector_entry.GetSymbolic())
 
@@ -605,7 +608,8 @@ def LoadSettings(cam_params, camera):
         if configure_gain(cam=camera, gain=cam_params["gain"]):
             if configure_buffer(cam=camera, bufferMode=cam_params["bufferMode"], bufferSize=cam_params["bufferSize"]):
                 print('Exposure, gain and buffer configured successfully.')
-                if enableChunkDataPayloads(cam=camera):
+                if enableChunkDataPayloads(cam=camera,
+                        chunkDataToRetreive=['FrameID', 'Timestamp']):
                     print('Chunk data enabled')
                 else:
                     raise Exception('Could not enable chunk data!')
