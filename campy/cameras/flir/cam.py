@@ -31,7 +31,7 @@ class TriggerType:
     HARDWARE = 2
 
 
-def ConfigureTrigger(cam_params, camera):
+def ConfigureTrigger(cam_params, camera, cam_name):
     """
     This function configures the camera to use a trigger. First, trigger mode is
     ensured to be off in order to select the trigger source. Trigger mode is
@@ -43,7 +43,7 @@ def ConfigureTrigger(cam_params, camera):
      :rtype: bool
     """
 
-    print('*** CONFIGURING TRIGGER ***\n')
+    print(f'*** CONFIGURING TRIGGER for {cam_name}***\n')
     if cam_params['triggerType'] == 'software':
         CHOSEN_TRIGGER = TriggerType.SOFTWARE
         print('Software trigger chosen...')
@@ -93,7 +93,7 @@ def ConfigureTrigger(cam_params, camera):
     return result
 
 
-def configure_exposure(cam, exposure_time: int):
+def configure_exposure(cam, exposure_time: int, cam_name):
     """
     This function configures a custom exposure time. Automatic exposure is turned off in order to allow for the
     customization, and then the custom setting is applied.
@@ -105,7 +105,7 @@ def configure_exposure(cam, exposure_time: int):
      :rtype: bool
     """
 
-    print('*** CONFIGURING EXPOSURE ***\n')
+    print(f'*** CONFIGURING EXPOSURE for {cam_name} ***\n')
 
     try:
         result = True
@@ -152,7 +152,7 @@ def configure_exposure(cam, exposure_time: int):
     return result
 
 
-def configure_gain(cam, gain: float):
+def configure_gain(cam, gain: float, cam_name):
     """
     This function configures the camera gain.
     :param cam: Camera to acquire images from.
@@ -163,7 +163,7 @@ def configure_gain(cam, gain: float):
     :rtype: bool
     """
 
-    print('*** CONFIGURING ACQUISITION MODE ***\n')
+    print(f'*** CONFIGURING ACQUISITION MODE for {cam_name} ***\n')
     try:
         result = True
 
@@ -202,7 +202,7 @@ def configure_gain(cam, gain: float):
 
         # Set gain
         node_gain.SetValue(float(gain))
-        print(f'Gain set to {gain} dB.')
+        print(f'Gain set to {gain} dB.\n')
 
     except PySpin.SpinnakerException as ex:
         print(f'Error: {ex}')
@@ -211,13 +211,13 @@ def configure_gain(cam, gain: float):
     return result
 
 
-def disable_gamma(cam):
+def disable_gamma(cam, cam_name):
     """This function disables the gamma correction.
      :param cam: Camera to disable gamma correction.
      :type cam: CameraPtr
      """
 
-    print('*** DISABLING GAMMA CORRECTION ***\n')
+    print(f'*** DISABLING GAMMA CORRECTION for {cam_name} ***\n')
 
     try:
         result = True
@@ -243,7 +243,8 @@ def disable_gamma(cam):
     return result
 
 
-def configure_buffer(cam, bufferMode='OldestFirst', bufferSize=100):
+def configure_buffer(cam, cam_name, bufferMode='OldestFirst', bufferSize=100):
+    print(f'*** CONFIGURING BUFFER for {cam_name} ***\n')
     result = True
     # Retrieve Stream Parameters device nodemap
     s_node_map = cam.GetTLStreamNodeMap()
@@ -300,7 +301,7 @@ def configure_buffer(cam, bufferMode='OldestFirst', bufferSize=100):
     return result
 
 
-def enableChunkDataPayloads(cam, chunkDataToRetreive):
+def enableChunkDataPayloads(cam, chunkDataToRetreive, cam_name):
     """
     This function configures the camera to add chunk data to each image. It does
     this by enabling each type of chunk data before enabling chunk data mode.
@@ -314,7 +315,7 @@ def enableChunkDataPayloads(cam, chunkDataToRetreive):
     """
     try:
         result = True
-        print('\n*** CONFIGURING CHUNK DATA ***\n')
+        print(f'\n*** CONFIGURING CHUNK DATA for {cam_name} ***\n')
 
         # Activate chunk mode
         #
@@ -379,15 +380,15 @@ def enableChunkDataPayloads(cam, chunkDataToRetreive):
 
             # Enable the boolean, thus enabling the corresponding chunk data
             if not PySpin.IsAvailable(chunk_enable):
-                print(f'{chunk_str} not available')
+                print(f'{chunk_str} not available\n')
                 result = False
             elif chunk_enable.GetValue() is True:
-                print(f'{chunk_str} enabled')
+                print(f'{chunk_str} enabled\n')
             elif PySpin.IsWritable(chunk_enable):
                 chunk_enable.SetValue(True)
-                print(f'{chunk_str} enabled')
+                print(f'{chunk_str} enabled\n')
             else:
-                print(f'{chunk_str} not writable')
+                print(f'{chunk_str} not writable\n')
                 result = False
 
     except PySpin.SpinnakerException as ex:
@@ -397,7 +398,7 @@ def enableChunkDataPayloads(cam, chunkDataToRetreive):
     return result
 
 
-def ConfigureCustomImageSettings(cam_params, nodemap):
+def ConfigureCustomImageSettings(cam_params, nodemap, cam_name):
     """
     Configures a number of settings on the camera including offsets  X and Y, width,
     height, and pixel format. These settings must be applied before BeginAcquisition()
@@ -409,7 +410,7 @@ def ConfigureCustomImageSettings(cam_params, nodemap):
     :return: True if successful, False otherwise.
     :rtype: bool
     """
-    print('\n*** CONFIGURING CUSTOM IMAGE SETTINGS *** \n')
+    print(f'\n*** CONFIGURING CUSTOM IMAGE SETTINGS for {cam_name} *** \n')
     try:
         result = True
 
@@ -480,18 +481,18 @@ def ConfigureCustomImageSettings(cam_params, nodemap):
                       "increased to the nearest value that is divisible by 4")
                 while offset_y % 4 != 0:
                     offset_y += 1
-                print(f"offset_y is set to {offset_y}")
+                print(f"offset_y is set to {offset_y}\n")
             cam_params["offset_y"] = offset_y
             node_offset_y = PySpin.CIntegerPtr(nodemap.GetNode('OffsetY'))
             if PySpin.IsAvailable(node_offset_y) and PySpin.IsWritable(node_offset_y):
                 node_offset_y.SetValue(offset_y)
             else:
-                print('OffsetY cannot be set!')
+                print('OffsetY cannot be set!\n')
         else:
-            print('Height not available...')
+            print('Height not available...\n')
 
     except PySpin.SpinnakerException as ex:
-        print(f'Error: {ex}')
+        print(f'Error: {ex}\n')
         return False
 
     return result, width_to_set, height_to_set
@@ -569,6 +570,7 @@ def OpenCamera(cam_params, camera):
 
 
 def LoadSettings(cam_params, camera):
+    cam_name = cam_params['cameraName']
     # Set acquisition mode to continuous
     node_acquisition_mode = PySpin.CEnumerationPtr(camera.GetNodeMap().GetNode('AcquisitionMode'))
     if not PySpin.IsAvailable(node_acquisition_mode) or not PySpin.IsWritable(node_acquisition_mode):
@@ -584,21 +586,26 @@ def LoadSettings(cam_params, camera):
     node_acquisition_mode.SetIntValue(acquisition_mode_continuous)
 
     # Configure trigger
-    trigConfig = ConfigureTrigger(cam_params, camera)
+    trigConfig = ConfigureTrigger(cam_params, camera, cam_name=cam_name)
     cam_params["trigConfig"] = trigConfig
 
     # Configure custom image settings
-    settingsConfig, frameWidth, frameHeight = ConfigureCustomImageSettings(cam_params, camera.GetNodeMap())
+    settingsConfig, frameWidth, frameHeight = ConfigureCustomImageSettings(cam_params, camera.GetNodeMap(), cam_name=cam_name)
     cam_params["settingsConfig"] = settingsConfig
     cam_params["frameWidth"] = frameWidth
     cam_params["frameHeight"] = frameHeight
 
     # Configure exposure, gain, gamma, buffer and chunk data mode for metadata (eg. timestamp and frame no information)
-    if configure_exposure(cam=camera, exposure_time=cam_params["exposureTimeInUs"]):
-        if configure_gain(cam=camera, gain=cam_params["gain"]):
-            if configure_buffer(cam=camera, bufferMode=cam_params["bufferMode"], bufferSize=cam_params["bufferSize"]):
+    if configure_exposure(
+        cam=camera, exposure_time=cam_params["exposureTimeInUs"],
+        cam_name=cam_name):
+        if configure_gain(cam=camera, gain=cam_params["gain"],
+                          cam_name=cam_name):
+            if configure_buffer(cam=camera, cam_name=cam_name,
+                                bufferMode=cam_params["bufferMode"],
+                                bufferSize=cam_params["bufferSize"]):
                 print('Exposure, gain and buffer configured successfully.')
-                if enableChunkDataPayloads(cam=camera,
+                if enableChunkDataPayloads(cam=camera, cam_name=cam_name,
                         chunkDataToRetreive=['FrameID', 'Timestamp']):
                     print('Chunk data enabled')
                 else:
@@ -611,7 +618,7 @@ def LoadSettings(cam_params, camera):
         raise Exception('Could not configure exposure!')
 
     if cam_params['disableGamma']:
-        if disable_gamma(cam=camera):
+        if disable_gamma(cam=camera, cam_name=cam_name):
             print('Gamma disabled successfully.')
         else:
             raise Exception('Could not disable gamma!')
