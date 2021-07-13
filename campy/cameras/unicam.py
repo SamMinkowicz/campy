@@ -136,23 +136,32 @@ def GrabFrames(cam_params, device, writeQueue, dispQueue, stopQueue):
             grabdata['frameNumber'].append(frameNumber)
             grabdata['timeStamp'].append(timeStamp)
             frameCount += 1
-            # ToDo: implement video display
-            # if cam_params['displayVideos']:
-            # Display converted, downsampled image in the Window
-            # if frameNumber % grabdata["frameRatio"] == 0:
-            # 	img = cam.DisplayImage(cam_params, dispQueue, grabResult)
-            if frameCount % grabdata["chunkLengthInFrames"] == 0:
-                timeElapsed = timeStamp - grabdata["timeStamp"][0]
-                fps_count = int(round(frameCount / timeElapsed))
-                print('{} collected {} frames at {} fps for {} sec.'
-                      .format(cam_params["cameraName"], frameCount, fps_count, int(round(timeElapsed))))
-
-            cam.ReleaseFrame(grabResult)
         except KeyboardInterrupt:
             pass
         except Exception as e:
             print('Exception in unicam.py GrabFrames', e)
             time.sleep(0.001)
+
+        try:
+            if cam_params['displayVideos']:
+                # Display converted, downsampled image in the Window
+                if frameNumber % grabdata["frameRatio"] == 0:
+                    cam.DisplayImage(cam_params, dispQueue, grabResult)
+
+        except KeyboardInterrupt:
+            pass
+        except Exception as e:
+            print('Exception in unicam.py GrabFrames', e)
+            time.sleep(0.001)
+
+
+        if frameCount % grabdata["chunkLengthInFrames"] == 0:
+            timeElapsed = timeStamp - grabdata["timeStamp"][0]
+            fps_count = int(round(frameCount / timeElapsed))
+            print('{} collected {} frames at {} fps for {} sec.'
+                    .format(cam_params["cameraName"], frameCount, fps_count, int(round(timeElapsed))))
+
+        cam.ReleaseFrame(grabResult)
 
 
 def SaveMetadata(cam_params, grabdata):

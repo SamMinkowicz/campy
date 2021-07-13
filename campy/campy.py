@@ -247,6 +247,12 @@ def ParseClargs(parser):
         help="Length of video chunks in seconds for reporting recording progress.",
     )
     parser.add_argument(
+        "--displayVideos",
+        dest="displayVideos",
+        type=bool,
+        help="Enable video display.",
+    )
+    parser.add_argument(
         "--displayFrameRate",
         dest="displayFrameRate",
         type=int,
@@ -322,12 +328,12 @@ def AcquireOneCamera(n_cam):
 
     # Start image window display thread
     dispQueue = deque([], 2)
-    if cam_params["cameraMake"] != 'flir':
-        threading.Thread(
-            target=display.DisplayFrames,
-            daemon=True,
-            args=(cam_params, dispQueue,),
-        ).start()
+    # if cam_params["cameraMake"] != 'flir':
+    threading.Thread(
+        target=display.DisplayFrames,
+        daemon=True,
+        args=(cam_params, dispQueue,),
+    ).start()
 
     # Load camera device
     device = unicam.LoadDevice(cam_params, systems)

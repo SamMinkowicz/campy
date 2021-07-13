@@ -668,10 +668,8 @@ def DisplayImage(cam_params, dispQueue, grabResult):
         # Convert to RGB
         img_converted = grabResult.Convert(PySpin.PixelFormat_RGB8, PySpin.HQ_LINEAR)
 
-        # Get Numpy Array
-        img = img_converted.GetNDArray()
-    else:
-        img = grabResult.GetNDArray()
+    # Get Numpy Array
+    img = img_converted.GetNDArray()
 
     # Downsample image
     img = img[::cam_params["displayDownsample"], ::cam_params["displayDownsample"]]
