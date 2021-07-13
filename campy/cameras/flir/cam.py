@@ -286,24 +286,15 @@ def configure_buffer(cam, bufferMode='OldestFirst', bufferSize=100):
     buffer_count.SetValue(bufferSize)
     print(f'Buffer count now set to: {buffer_count.GetValue()}')
 
-    if bufferMode == 'OldestFirst':
-        handling_mode_entry = handling_mode.GetEntryByName('OldestFirst')
+    bufferModes = ['OldestFirst', 'NewestFirst', 'NewestOnly',
+                   'OldestFirstOverwrite']
+
+    if bufferMode in bufferModes:
+        handling_mode_entry = handling_mode.GetEntryByName(bufferMode)
         handling_mode.SetIntValue(handling_mode_entry.GetValue())
-        print(f'\n\nBuffer Handling Mode has been set to {handling_mode_entry.GetDisplayName()}')
-    elif bufferMode == 'NewestFirst':
-        handling_mode_entry = handling_mode.GetEntryByName('NewestFirst')
-        handling_mode.SetIntValue(handling_mode_entry.GetValue())
-        print(f'\n\nBuffer Handling Mode has been set to {handling_mode_entry.GetDisplayName()}')
-    elif bufferMode == 'NewestOnly':
-        handling_mode_entry = handling_mode.GetEntryByName('NewestOnly')
-        handling_mode.SetIntValue(handling_mode_entry.GetValue())
-        print(f'\n\nBuffer Handling Mode has been set to {handling_mode_entry.GetDisplayName()}')
-    elif bufferMode == 'OldestFirstOverwrite':
-        handling_mode_entry = handling_mode.GetEntryByName('OldestFirstOverwrite')
-        handling_mode.SetIntValue(handling_mode_entry.GetValue())
-        print(f'\n\nBuffer Handling Mode has been set to {handling_mode_entry.GetDisplayName()}')
+        print(f'\nBuffer Handling Mode has been set to {handling_mode_entry.GetDisplayName()}')
     else:
-        print("\n\nbufferMode should be 'OldestFirst', 'NewestFirst', 'NewestOnly' or 'OldestFirstOverwrite'")
+        print("\nbufferMode should be 'OldestFirst', 'NewestFirst', 'NewestOnly' or 'OldestFirstOverwrite'")
         return False
 
     return result
