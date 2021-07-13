@@ -104,7 +104,7 @@ def GrabFrames(cam_params, device, writeQueue, dispQueue, stopQueue):
     print(cam_params["cameraName"], "ready to trigger.")
     if cam_params["cameraMake"] == "flir":
         grabTimeOutInMilliseconds = cam_params["grabTimeOutInMilliseconds"]
-        print("You have {} seconds to start the recording!".format(grabTimeOutInMilliseconds / 1000))
+        print(f"You have {grabTimeOutInMilliseconds / 1000} seconds to start the recording!")
 
     frameNumber = 0
     frameCount = 0
@@ -118,7 +118,7 @@ def GrabFrames(cam_params, device, writeQueue, dispQueue, stopQueue):
             # Grab image from camera buffer if available
             grabResult = cam.GrabFrame(camera, frameNumber, grabTimeOutInMilliseconds)
         except Exception as err:
-            print('No frames received for {} seconds!'.format(grabTimeOutInMilliseconds / 1000), err)
+            print(f'No frames received for {grabTimeOutInMilliseconds / 1000} seconds!', err)
             writeQueue.append('STOP')
             grabbing = False
             cam.CloseCamera(cam_params, camera, grabdata)
@@ -158,15 +158,16 @@ def GrabFrames(cam_params, device, writeQueue, dispQueue, stopQueue):
         if frameCount % grabdata["chunkLengthInFrames"] == 0:
             timeElapsed = timeStamp - grabdata["timeStamp"][0]
             fps_count = int(round(frameCount / timeElapsed))
-            print('{} collected {} frames at {} fps for {} sec.'
-                    .format(cam_params["cameraName"], frameCount, fps_count, int(round(timeElapsed))))
+            print(f'{cam_params["cameraName"]} collected {frameCount} frames at {fps_count} fps for {int(round(timeElapsed))} sec.')
+
 
         cam.ReleaseFrame(grabResult)
 
 
 def SaveMetadata(cam_params, grabdata):
     # TODO let user choose which metadata to collect
-    full_folder_name = os.path.join(cam_params["videoFolder"], cam_params["cameraName"])
+    full_folder_name = os.path.join(
+        cam_params["videoFolder"], cam_params["cameraName"])
     # Zero timeStamps
     timeFirstGrab = grabdata["timeStamp"][0]
     # ToDo: can't remember?
@@ -176,7 +177,7 @@ def SaveMetadata(cam_params, grabdata):
     frame_count = len(grabdata['frameNumber'])
     time_count = grabdata['timeStamp'][-1]
     fps_count = frame_count / time_count
-    print('{} saved {} frames at {} fps.'.format(cam_params["cameraName"], frame_count, fps_count))
+    print(f'{cam_params["cameraName"]} saved {frame_count} frames at {fps_count} fps.')
 
     while True:
         meta = cam_params
@@ -221,6 +222,6 @@ def CloseSystems(params, systems):
         try:
             cam.CloseSystem(system, device_list)
         except PySpin.SpinnakerException as ex:
-            print('SpinnakerException at unicam.py CloseSystems: %s' % ex)
+            print(f'SpinnakerException at unicam.py CloseSystems: {ex}')
         except Exception as err:
-            print('Exception at unicam.py CloseSystems: %s' % err)
+            print(f'Exception at unicam.py CloseSystems: {err}')

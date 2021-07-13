@@ -143,10 +143,10 @@ def configure_exposure(cam, exposure_time: int):
         exposure_time_to_set = exposure_time
         exposure_time_to_set = min(cam.ExposureTime.GetMax(), exposure_time_to_set)
         cam.ExposureTime.SetValue(exposure_time_to_set)
-        print('Shutter time set to %s us...\n' % exposure_time_to_set)
+        print(f'Shutter time set to {exposure_time_to_set} us...\n')
 
     except PySpin.SpinnakerException as ex:
-        print('Error: %s' % ex)
+        print(f'Error: {ex}')
         result = False
 
     return result
@@ -195,17 +195,17 @@ def configure_gain(cam, gain: float):
         max_gain = cam.Gain.GetMax()
 
         if gain > cam.Gain.GetMax():
-            print("Max. gain is {}dB!".format(max_gain))
+            print(f"Max. gain is {max_gain}dB!")
             gain = max_gain
         elif gain <= 0:
             gain = 0.0
 
         # Set gain
         node_gain.SetValue(float(gain))
-        print('Gain set to {} dB.'.format(gain))
+        print(f'Gain set to {gain} dB.')
 
     except PySpin.SpinnakerException as ex:
-        print('Error: %s' % ex)
+        print(f'Error: {ex}')
         return False
 
     return result
@@ -281,27 +281,27 @@ def configure_buffer(cam, bufferMode='OldestFirst', bufferSize=100):
         return False
 
     # Display Buffer Info
-    print('\nDefault Buffer Handling Mode: %s' % handling_mode_entry.GetDisplayName())
-    print('Maximum Buffer Count: %d' % buffer_count.GetMax())
+    print(f'\nDefault Buffer Handling Mode: {handling_mode_entry.GetDisplayName()}')
+    print(f'Maximum Buffer Count: {buffer_count.GetMax()}')
     buffer_count.SetValue(bufferSize)
-    print('Buffer count now set to: %d' % buffer_count.GetValue())
+    print(f'Buffer count now set to: {buffer_count.GetValue()}')
 
     if bufferMode == 'OldestFirst':
         handling_mode_entry = handling_mode.GetEntryByName('OldestFirst')
         handling_mode.SetIntValue(handling_mode_entry.GetValue())
-        print('\n\nBuffer Handling Mode has been set to %s' % handling_mode_entry.GetDisplayName())
+        print(f'\n\nBuffer Handling Mode has been set to {handling_mode_entry.GetDisplayName()}')
     elif bufferMode == 'NewestFirst':
         handling_mode_entry = handling_mode.GetEntryByName('NewestFirst')
         handling_mode.SetIntValue(handling_mode_entry.GetValue())
-        print('\n\nBuffer Handling Mode has been set to %s' % handling_mode_entry.GetDisplayName())
+        print(f'\n\nBuffer Handling Mode has been set to {handling_mode_entry.GetDisplayName()}')
     elif bufferMode == 'NewestOnly':
         handling_mode_entry = handling_mode.GetEntryByName('NewestOnly')
         handling_mode.SetIntValue(handling_mode_entry.GetValue())
-        print('\n\nBuffer Handling Mode has been set to %s' % handling_mode_entry.GetDisplayName())
+        print(f'\n\nBuffer Handling Mode has been set to {handling_mode_entry.GetDisplayName()}')
     elif bufferMode == 'OldestFirstOverwrite':
         handling_mode_entry = handling_mode.GetEntryByName('OldestFirstOverwrite')
         handling_mode.SetIntValue(handling_mode_entry.GetValue())
-        print('\n\nBuffer Handling Mode has been set to %s' % handling_mode_entry.GetDisplayName())
+        print(f'\n\nBuffer Handling Mode has been set to {handling_mode_entry.GetDisplayName()}')
     else:
         print("\n\nbufferMode should be 'OldestFirst', 'NewestFirst', 'NewestOnly' or 'OldestFirstOverwrite'")
         return False
@@ -388,19 +388,19 @@ def enableChunkDataPayloads(cam, chunkDataToRetreive):
 
             # Enable the boolean, thus enabling the corresponding chunk data
             if not PySpin.IsAvailable(chunk_enable):
-                print('{} not available'.format(chunk_str))
+                print(f'{chunk_str} not available')
                 result = False
             elif chunk_enable.GetValue() is True:
-                print('{} enabled'.format(chunk_str))
+                print(f'{chunk_str} enabled')
             elif PySpin.IsWritable(chunk_enable):
                 chunk_enable.SetValue(True)
-                print('{} enabled'.format(chunk_str))
+                print(f'{chunk_str} enabled')
             else:
-                print('{} not writable'.format(chunk_str))
+                print(f'{chunk_str} not writable')
                 result = False
 
     except PySpin.SpinnakerException as ex:
-        print('Error: %s' % ex)
+        print(f'Error: {ex}')
         result = False
 
     return result
@@ -424,19 +424,19 @@ def ConfigureCustomImageSettings(cam_params, nodemap):
 
         width_to_set = cam_params["frameWidth"]
         if width_to_set % 16 != 0:
-            print("width_to_set = {} is not divisible by 16, this may create problems with ffmpeg. width_to_set will "
-                  "be increased to the nearest value that is divisible by 16".format(width_to_set))
+            print(f"width_to_set = {width_to_set} is not divisible by 16, this may create problems with ffmpeg. width_to_set will "
+                  "be increased to the nearest value that is divisible by 16")
             while width_to_set % 16 != 0:
                 width_to_set += 1
-            print("width_to_set is set to width_to_set = {}".format(width_to_set))
+            print(f"width_to_set is set to {width_to_set}")
             cam_params["frameWidth"] = width_to_set
         height_to_set = cam_params["frameHeight"]
         if height_to_set % 16 != 0:
-            print("height_to_set = {} is not divisible by 16, this may create problems with ffmpeg. height_to_set will "
-                  "be increased to the nearest value that is divisible by 16".format(height_to_set))
+            print(f"height_to_set = {height_to_set} is not divisible by 16, this may create problems with ffmpeg. height_to_set will "
+                  "be increased to the nearest value that is divisible by 16")
             while height_to_set % 16 != 0:
                 height_to_set += 1
-            print("height_to_set is set to height_to_set = {}".format(height_to_set))
+            print(f"height_to_set is set to {height_to_set}")
             cam_params["frameHeight"] = height_to_set
 
         # ToDo: Reset the ROI back to default
@@ -455,14 +455,14 @@ def ConfigureCustomImageSettings(cam_params, nodemap):
             # width_to_set = node_width.GetMax()
             width_to_set = cam_params["frameWidth"]
             node_width.SetValue(width_to_set)
-            print('Width set to %i...' % node_width.GetValue())
+            print(f'Width set to {node_width.GetValue()}...')
             offset_x = int((max_w-width_to_set)/2)
             if offset_x % 4 != 0:
-                print("offset_x = {} is not divisible by 4, this may create problems with the camera. offset_x will be "
-                      "increased to the nearest value that is divisible by 4".format(offset_x))
+                print(f"offset_x = {offset_x} is not divisible by 4, this may create problems with the camera. offset_x will be "
+                      "increased to the nearest value that is divisible by 4")
                 while offset_x % 4 != 0:
                     offset_x += 1
-                print("offset_x is set to offset_x = {}".format(offset_x))
+                print(f"offset_x is set to {offset_x}")
             cam_params["offset_x"] = offset_x
             node_offset_x = PySpin.CIntegerPtr(nodemap.GetNode('OffsetX'))
             if PySpin.IsAvailable(node_offset_x) and PySpin.IsWritable(node_offset_x):
@@ -482,14 +482,14 @@ def ConfigureCustomImageSettings(cam_params, nodemap):
             # height_to_set = node_height.GetMax()
             height_to_set = cam_params["frameHeight"]
             node_height.SetValue(height_to_set)
-            print('Height set to %i...' % node_height.GetValue())
+            print(f'Height set to {node_height.GetValue()}...')
             offset_y = int((max_h-height_to_set)/2)
             if offset_y % 4 != 0:
-                print("offset_y = {} is not divisible by 4, this may create problems with the camera. offset_y will be "
-                      "increased to the nearest value that is divisible by 4".format(offset_y))
+                print(f"offset_y = {offset_y} is not divisible by 4, this may create problems with the camera. offset_y will be "
+                      "increased to the nearest value that is divisible by 4")
                 while offset_y % 4 != 0:
                     offset_y += 1
-                print("offset_y is set to offset_y = {}".format(offset_y))
+                print(f"offset_y is set to {offset_y}")
             cam_params["offset_y"] = offset_y
             node_offset_y = PySpin.CIntegerPtr(nodemap.GetNode('OffsetY'))
             if PySpin.IsAvailable(node_offset_y) and PySpin.IsWritable(node_offset_y):
@@ -500,7 +500,7 @@ def ConfigureCustomImageSettings(cam_params, nodemap):
             print('Height not available...')
 
     except PySpin.SpinnakerException as ex:
-        print('Error: %s' % ex)
+        print(f'Error: {ex}')
         return False
 
     return result, width_to_set, height_to_set
@@ -519,7 +519,7 @@ def PrintDeviceInfo(nodemap, cam_num):
     :rtype: bool
     """
 
-    print('Printing device information for camera %d... \n' % cam_num)
+    print(f'Printing device information for camera {cam_num}... \n')
     try:
         result = True
         node_device_information = PySpin.CCategoryPtr(nodemap.GetNode('DeviceInformation'))
@@ -528,8 +528,7 @@ def PrintDeviceInfo(nodemap, cam_num):
             for feature in features:
                 node_feature = PySpin.CValuePtr(feature)
                 try:
-                    print('%s: %s' % (node_feature.GetName(), node_feature.ToString() if PySpin.IsReadable(
-                        node_feature) else 'Node not readable'))
+                    print(f'{node_feature.GetName()}: {node_feature.ToString()}' if PySpin.IsReadable(node_feature) else 'Node not readable')
                 except:
                     pass
         else:
@@ -537,7 +536,7 @@ def PrintDeviceInfo(nodemap, cam_num):
         print()
         return result
     except PySpin.SpinnakerException as ex:
-        print('Error: %s' % ex)
+        print(f'Error: {ex}')
         return False
 
 
@@ -574,7 +573,7 @@ def OpenCamera(cam_params, camera):
     # Load camera settings
     cam_params = LoadSettings(cam_params, camera)
 
-    print("Opened {}, serial#: {}".format(cam_params["cameraName"], cam_params["cameraSerialNo"]))
+    print(f"Opened {cam_params['cameraName']}, serial#: {cam_params['cameraSerialNo']}")
     return camera, cam_params
 
 
@@ -582,7 +581,7 @@ def LoadSettings(cam_params, camera):
     # Set acquisition mode to continuous
     node_acquisition_mode = PySpin.CEnumerationPtr(camera.GetNodeMap().GetNode('AcquisitionMode'))
     if not PySpin.IsAvailable(node_acquisition_mode) or not PySpin.IsWritable(node_acquisition_mode):
-        print('Unable to set acquisition mode to continuous (node retrieval; camera %d). Aborting... \n' % i)
+        print(f'Unable to set acquisition mode to continuous (node retrieval; camera {i}). Aborting... \n')
         return False
     node_acquisition_mode_continuous = node_acquisition_mode.GetEntryByName('Continuous')
     if not PySpin.IsAvailable(node_acquisition_mode_continuous) or not PySpin.IsReadable(
@@ -634,10 +633,10 @@ def StartGrabbing(camera):
         camera.BeginAcquisition()
         return True
     except PySpin.SpinnakerException as ex:
-        print('Error: %s' % ex)
+        print(f'Error: {ex}')
         return False
     except Exception as err:
-        print('Exception in cam.py function StartGrabbing(camera): ', err)
+        print(f'Exception in cam.py function StartGrabbing(camera): {err}')
         return False
 
 
@@ -646,7 +645,7 @@ def GrabFrame(camera, frameNumber, grabTimeOutInMilliseconds):
     #  Ensure image completion
     if image_result.IsIncomplete():
         image_status = image_result.GetImageStatus()
-        print('Image incomplete with image status %d ...' % image_status)
+        print(f'Image incomplete with image status {image_status} ...')
         raise ImageNotCompleteException('Image not complete', image_status)
     return image_result
 
@@ -689,7 +688,7 @@ def ReleaseFrame(grabResult):
 
 
 def CloseCamera(cam_params, camera, grabdata):
-    print('Closing {}... Please wait.'.format(cam_params["cameraName"]))
+    print(f'Closing {cam_params["cameraName"]}... Please wait.')
     # Close camera after acquisition stops
     while True:
         try:
@@ -706,7 +705,7 @@ def CloseCamera(cam_params, camera, grabdata):
             except PySpin.SpinnakerException as ex:
                 print('Error: %s' % ex)
             except Exception as e:
-                logging.error('Caught exception at cam.py CloseCamera: {}'.format(e))
+                logging.error(f'Caught exception at cam.py CloseCamera: {e}')
                 break
         except KeyboardInterrupt:
             break
@@ -717,7 +716,7 @@ def CloseSystem(system, device_list):
         device_list.Clear()
         system.ReleaseInstance()
     except PySpin.SpinnakerException as ex:
-        print('SpinnakerException at cam.py CloseSystem: %s' % ex)
+        print(f'SpinnakerException at cam.py CloseSystem: {ex}')
         print('passing from', __name__)
     except Exception as err:
-        print('Exception at cam.py CloseSystem: %s' % err)
+        print(f'Exception at cam.py CloseSystem: {err}')

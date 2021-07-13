@@ -39,7 +39,7 @@ def DisplayFrames(cam_params, dispQueue):
 						figure.canvas.draw()
 						figure.canvas.flush_events()
 					except Exception as e:
-						logging.error('Caught exception: {}'.format(e))
+						logging.error(f'Caught exception: {e}')
 				else:
 					time.sleep(0.01)
 			except KeyboardInterrupt:

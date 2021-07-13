@@ -36,9 +36,9 @@ def chunkFiles(camNum):
         if not os.path.isdir(outdir):
             os.mkdir(outdir)
         fname_out = os.path.join(outdir,str(startFrame) + '_' + str(endFrame) + '.mp4')
-        
+
         # No need to pad zeros
-        startTime = str(hrsStart) + ':' + str(minStart) + ':' + str(secStart) + '.' + str(msStart)
+        startTime = f'{hrsStart}:{minStart}:{secStart}.{msStart}'
 
         timeEnd = startTimeInSec + chunkLengthInSec
         hr = math.floor(timeEnd/3600)
@@ -49,17 +49,17 @@ def chunkFiles(camNum):
         timeEnd = timeEnd - sc
         ms = math.floor(timeEnd*1000)
 
-        endTime = str(hr) + ':' + str(mn) + ':' + str(sc) + '.' + str(ms)
+        endTime = f'{hr}:{mn}:{sc}.{ms}'
 
-        cmd = ('ffmpeg -y -i ' + fname_in + ' -ss ' + startTime + ' -to ' + endTime + 
+        cmd = ('ffmpeg -y -i ' + fname_in + ' -ss ' + startTime + ' -to ' + endTime +
         ' -c:v copy -c:a copy ' + fname_out + ' -async 1 '
         ' -hide_banner -loglevel warning')
 
         if os.path.isfile(fname_out):
-            print('Video ' + str(camNum+1) + ' chunk ' + str(t) + ' already exists...')
+            print(f'Video {camNum+1} chunk {t} already exists...')
         else:
             p = Popen(cmd.split())
-            print('Copying video ' + str(camNum+1) + ' chunk ' + str(t) + '...')
+            print(f'Copying video {camNum+1} chunk {t}...')
             time.sleep(5)
 
         startFrame = startFrame + chunkLengthInFrames
@@ -72,8 +72,8 @@ def chunkFiles(camNum):
         secStart = sc
         msStart = ms
 
-if __name__ == '__main__':            
-    
+if __name__ == '__main__':
+
     ts = time.time()
     print('Chunking videos...')
     pp = mp.Pool(numCams)

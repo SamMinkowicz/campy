@@ -32,7 +32,7 @@ def chunkFiles(camNum):
 
     for t in range(0,numChunks):
         #no need to pad zeros
-        startTime = str(hrsStart) + ':' + str(minStart) + ':' + str(secStart) + '.' + str(msStart)
+        startTime = f'{hrsStart}:{minStart}:{secStart}.{msStart}'
 
         timeEnd = startTimeInSec + chunkLengthInSec
         hr = math.floor(timeEnd/3600)
@@ -43,8 +43,8 @@ def chunkFiles(camNum):
         timeEnd = timeEnd - sc
         ms = math.floor(timeEnd*1000)
 
-        endTime = str(hr) + ':' + str(mn) + ':' + str(sc) + '.' + str(ms)
-        cmd = ('ffmpeg -y -i 1.mp4 -ss ' + startTime + ' -to ' + endTime + 
+        endTime = f'{hr}:{mn}:{sc}.{ms}'
+        cmd = ('ffmpeg -y -i 1.mp4 -ss ' + startTime + ' -to ' + endTime +
         ' -c:v copy -c:a copy ' + str(startFrame) + '.mp4' + ' -async 1 '
         ' -hide_banner -loglevel panic')
 
@@ -57,10 +57,10 @@ def chunkFiles(camNum):
         secStart = sc
         msStart = ms
 
-        print('Copying video ' + str(camNum+1) + ' chunk ' + str(t) + '...')
+        print(f'Copying video {camNum+1} chunk {t} ...')
 
-if __name__ == '__main__':            
-    
+if __name__ == '__main__':
+
     ts = time.time()
     print('Chunking videos...')
     pp = mp.Pool(numCams)

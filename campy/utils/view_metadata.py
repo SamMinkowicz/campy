@@ -28,7 +28,7 @@ for c in range(0, numCams):
 
     xdiff = np.diff(x[1, :])
     xdiff_sorted = np.sort(xdiff)
-    print('Printing {} largest inter-frame intervals:'.format(num_IFI))
+    print(f'Printing {num_IFI} largest inter-frame intervals:')
     print(np.flip(xdiff_sorted)[0:num_IFI - 1])
 
     mindiff = min(xdiff)

@@ -59,7 +59,7 @@ def LoadConfig(config_path):
         with open(config_path, 'rb') as f:
             config = yaml.safe_load(f)
     except Exception as e:
-        logging.error('Caught exception: {}'.format(e))
+        logging.error(f'Caught exception: {e}')
     return config
 
 
@@ -113,7 +113,7 @@ def OptParams(params, cam_params, default_params):
                 if len(params[key]) == params["numCams"]:
                     cam_params[key] = params[key][cam_params["n_cam"]]
                 else:
-                    print('{} list is not the same size as numCams.'.format(key))
+                    print(f'{key} list is not the same size as numCams.')
         else:
             cam_params[key] = default_params[key]
     return cam_params
@@ -319,7 +319,7 @@ def AcquireOneCamera(n_cam):
     cam_params = CreateCamParams(params, systems, n_cam)
 
     # Import the correct camera module for your camera
-    print('Importing {} cam for {}'.format(cam_params["cameraMake"], cam_params["cameraName"]))
+    print(f'Importing {cam_params["cameraMake"]} cam for {cam_params["cameraName"]}')
     # cam = unicam.ImportCam(cam_params) # Could this be the reason for not being able to close the systems?
 
     # Initialize queues for video writer and stop message

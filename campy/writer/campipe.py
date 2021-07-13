@@ -13,8 +13,8 @@ def OpenWriter(cam_params):
 
 	if not os.path.isdir(folder_name):
 		os.makedirs(folder_name)
-		print('Made directory {}.'.format(folder_name))
-	
+		print(f'Made directory {folder_name}.')
+
 	# Load defaults
 	pix_fmt_out = cam_params["pixelFormatOutput"]
 	codec = cam_params["codec"]
@@ -22,7 +22,7 @@ def OpenWriter(cam_params):
 
 	# CPU compression
 	if cam_params["gpuID"] == -1:
-		print('Opened: {} using CPU to compress the stream.'.format(full_file_name))
+		print(f'Opened: {full_file_name} using CPU to compress the stream.')
 		if pix_fmt_out == 'rgb0':
 			pix_fmt_out = 'yuv420p'
 		if cam_params["codec"] == 'h264':
@@ -40,7 +40,7 @@ def OpenWriter(cam_params):
 
 	# GPU compression
 	else:
-		print('Opened: {} using GPU {} to compress the stream.'.format(full_file_name, cam_params["gpuID"]))
+		print(f'Opened: {full_file_name} using GPU {cam_params["gpuID"]} to compress the stream.')
 		if cam_params["gpuMake"] == 'nvidia':
 			if cam_params["codec"] == 'h264':
 				codec = 'h264_nvenc'
@@ -99,7 +99,7 @@ def OpenWriter(cam_params):
 				writer.send(None) # Initialize the generator
 				break
 			except Exception as e:
-				logging.error('Caught exception (campipe.py line 102): {}'.format(e))
+				logging.error(f'Caught exception (campipe.py line 102): {e}')
 				time.sleep(0.1)
 
 		except KeyboardInterrupt:
@@ -108,7 +108,7 @@ def OpenWriter(cam_params):
 	return writer
 
 def WriteFrames(cam_params, writeQueue, stopQueue):
-	# Start ffmpeg video writer 
+	# Start ffmpeg video writer
 	writer = OpenWriter(cam_params)
 	message = ''
 
@@ -127,6 +127,6 @@ def WriteFrames(cam_params, writeQueue, stopQueue):
 			stopQueue.append('STOP')
 
 	# Closing up...
-	print('Closing video writer for {}. Please wait...'.format(cam_params["cameraName"]))
+	print(f'Closing video writer for {cam_params["cameraName"]}. Please wait...')
 	time.sleep(1)
 	writer.close()
