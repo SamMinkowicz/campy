@@ -43,7 +43,7 @@ def ConfigureTrigger(cam_params, camera, cam_name):
      :rtype: bool
     """
 
-    print(f'*** CONFIGURING TRIGGER for {cam_name}***\n')
+    print(f'*** CONFIGURING TRIGGER for {cam_name}***')
     if cam_params['triggerType'] == 'software':
         CHOSEN_TRIGGER = TriggerType.SOFTWARE
         print('Software trigger chosen...')
@@ -105,7 +105,7 @@ def configure_exposure(cam, exposure_time: int, cam_name):
      :rtype: bool
     """
 
-    print(f'*** CONFIGURING EXPOSURE for {cam_name} ***\n')
+    print(f'*** CONFIGURING EXPOSURE for {cam_name} ***')
 
     try:
         result = True
@@ -163,7 +163,7 @@ def configure_gain(cam, gain: float, cam_name):
     :rtype: bool
     """
 
-    print(f'*** CONFIGURING ACQUISITION MODE for {cam_name} ***\n')
+    print(f'*** CONFIGURING ACQUISITION MODE for {cam_name} ***')
     try:
         result = True
 
@@ -217,7 +217,7 @@ def disable_gamma(cam, cam_name):
      :type cam: CameraPtr
      """
 
-    print(f'*** DISABLING GAMMA CORRECTION for {cam_name} ***\n')
+    print(f'*** DISABLING GAMMA CORRECTION for {cam_name} ***')
 
     try:
         result = True
@@ -234,7 +234,7 @@ def disable_gamma(cam, cam_name):
 
         # Set value to False (disable gamma correction)
         node_gamma_enable_bool.SetValue(False)
-        print('Gamma correction disabled.')
+        print('Gamma correction disabled.\n')
 
     except PySpin.SpinnakerException as ex:
         print('Error: %s' % ex)
@@ -244,7 +244,10 @@ def disable_gamma(cam, cam_name):
 
 
 def configure_buffer(cam, cam_name, bufferMode='OldestFirst', bufferSize=100):
-    print(f'*** CONFIGURING BUFFER for {cam_name} ***\n')
+    """configure buffer size and mode. Mode must be: OldestFirst, NewestFirst,
+       NewestOnly or OldestFirstOverwrite."""
+
+    print(f'*** CONFIGURING BUFFER for {cam_name} ***')
     result = True
     # Retrieve Stream Parameters device nodemap
     s_node_map = cam.GetTLStreamNodeMap()
@@ -315,7 +318,7 @@ def enableChunkDataPayloads(cam, chunkDataToRetreive, cam_name):
     """
     try:
         result = True
-        print(f'\n*** CONFIGURING CHUNK DATA for {cam_name} ***\n')
+        print(f'\n*** CONFIGURING CHUNK DATA for {cam_name} ***')
 
         # Activate chunk mode
         #
@@ -410,7 +413,7 @@ def ConfigureCustomImageSettings(cam_params, nodemap, cam_name):
     :return: True if successful, False otherwise.
     :rtype: bool
     """
-    print(f'\n*** CONFIGURING CUSTOM IMAGE SETTINGS for {cam_name} *** \n')
+    print(f'\n*** CONFIGURING CUSTOM IMAGE SETTINGS for {cam_name} ***')
     try:
         result = True
 
@@ -501,7 +504,7 @@ def ConfigureCustomImageSettings(cam_params, nodemap, cam_name):
 def ConfigureAcquisitionMode(camera, cam_name):
     """Set acquisition mode to continuous"""
 
-    print(f'\n*** CONFIGURING ACQUISITION MODE for {cam_name} *** \n')
+    print(f'\n*** CONFIGURING ACQUISITION MODE for {cam_name} ***')
 
     try:
         result = True
@@ -518,7 +521,7 @@ def ConfigureAcquisitionMode(camera, cam_name):
             return False
         acquisition_mode_continuous = node_acquisition_mode_continuous.GetValue()
         node_acquisition_mode.SetIntValue(acquisition_mode_continuous)
-        print(f'Acquisition mode set to {acquisition_mode_continuous.GetDisplayName()}\n')
+        print('Acquisition mode set to continuous\n')
 
     except PySpin.SpinnakerException as ex:
         print(f'Error: {ex}')
@@ -540,7 +543,7 @@ def PrintDeviceInfo(nodemap, cam_num):
     :rtype: bool
     """
 
-    print(f'Printing device information for camera {cam_num}... \n')
+    print(f'Printing device information for camera {cam_num}...')
     try:
         result = True
         node_device_information = PySpin.CCategoryPtr(nodemap.GetNode('DeviceInformation'))
@@ -627,7 +630,7 @@ def LoadSettings(cam_params, camera):
                 print('Exposure, gain and buffer configured successfully.')
                 if enableChunkDataPayloads(cam=camera, cam_name=cam_name,
                         chunkDataToRetreive=['FrameID', 'Timestamp']):
-                    print('Chunk data enabled')
+                    print('Chunk data enabled\n')
                 else:
                     raise Exception('Could not enable chunk data!')
             else:
