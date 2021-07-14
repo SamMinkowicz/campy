@@ -169,8 +169,7 @@ def GrabFrames(cam_params, device, writeQueue, dispQueue, stopQueue):
 
 
 def SaveMetadata(cam_params, grabdata):
-    """save metadata about the recording and each image
-    to CSV files. Image metadata is also saved to a npy file.
+    """save recording metadata and save frame timestamps to CSV files.
 
     # TODO let user choose which metadata to collect"""
     cam_name = cam_params["cameraName"]
@@ -191,27 +190,24 @@ def SaveMetadata(cam_params, grabdata):
     while True:
         meta = cam_params
         try:
-            npy_filename = os.path.join(full_folder_name, 'frametimes.npy')
-            pd_filename = npy_filename[:-3] + 'csv'
-            x = np.array([grabdata['frameNumber'], grabdata["cameraTime"],
-                          grabdata['timeStamp']])
+            frametimes_filename = os.path.join(full_folder_name, 'frametimes.csv')
             df = pd.DataFrame(data=x.T, columns=['frameNumber', 'cameraTime',
                                                  'timeStamp'])
             df = df.convert_dtypes({'frameNumber': 'int'})
-            df.to_csv(pd_filename)
-            np.save(npy_filename, x)
+            df.to_csv(frametimes_filename)
+            print(f'Saved framtimes.csv for {cam_name}')
 
         except KeyboardInterrupt:
             break
 
-        csv_filename = os.path.join(full_folder_name, 'metadata.csv')
+        metadata_filename = os.path.join(full_folder_name, 'metadata.csv')
         meta['totalFrames'] = len(grabdata['frameNumber'])
         meta['totalTime'] = grabdata['timeStamp'][-1]
         keys = meta.keys()
         vals = meta.values()
 
         try:
-            with open(csv_filename, 'w', newline='') as f:
+            with open(metadata_filename, 'w', newline='') as f:
                 w = csv.writer(f, delimiter=',', quoting=csv.QUOTE_ALL)
                 for row in meta.items():
                     w.writerow(row)
