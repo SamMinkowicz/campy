@@ -6,6 +6,76 @@ import time
 import logging
 import sys
 
+
+def ConfigureCPUCompresssion(cam_params):
+	"""Configure use of CPU to compress the incoming stream"""
+	pix_fmt_out = cam_params["pixelFormatOutput"]
+
+	if pix_fmt_out == 'rgb0':
+		pix_fmt_out = 'yuv420p'
+
+	if cam_params["codec"] == 'h264':
+		codec = 'libx264'
+	elif cam_params["codec"] == 'h265':
+		codec = 'libx265'
+
+	gpu_params = ['-r:v', str(cam_params["frameRate"]),
+				'-preset', 'fast',
+				'-tune', 'fastdecode',
+				'-crf', cam_params["quality"],
+				'-bufsize', '20M',
+				'-maxrate', '10M',
+				'-bf:v', '4',
+				'-vsync', '0',]
+
+	return pix_fmt_out, codec, gpu_params
+
+
+def ConfigureGPUCompresssion(cam_params):
+	"""Configure use of GPU to compress the incoming stream"""
+	pix_fmt_out = cam_params["pixelFormatOutput"]
+
+	if cam_params["gpuMake"] == 'nvidia':
+		if cam_params["codec"] == 'h264':
+			codec = 'h264_nvenc'
+		elif cam_params["codec"] == 'h265':
+			codec = 'hevc_nvenc'
+		gpu_params = ['-r:v', str(cam_params["frameRate"]), # important to play nice with vsync '0'
+					'-preset', 'fast', # set to 'fast', 'llhp', or 'llhq' for h264 or hevc
+					'-qp', cam_params["quality"],
+					'-bf:v', '0',
+					'-vsync', '0',
+					'-2pass', '0',
+					'-gpu', str(cam_params["gpuID"]),]
+	elif cam_params["gpuMake"] == 'amd':
+		if pix_fmt_out == 'rgb0':
+			pix_fmt_out = 'yuv420p'
+		if cam_params["codec"] == 'h264':
+			codec = 'h264_amf'
+		elif cam_params["codec"] == 'h265':
+			codec = 'hevc_amf'
+		gpu_params = ['-r:v', str(cam_params["frameRate"]),
+					'-usage', 'lowlatency',
+					'-rc', 'cqp', # constant quantization parameter
+					'-qp_i', cam_params["quality"],
+					'-qp_p', cam_params["quality"],
+					'-qp_b', cam_params["quality"],
+					'-bf:v', '0',
+					'-hwaccel', 'auto',
+					'-hwaccel_device', str(cam_params["gpuID"]),]
+	elif cam_params["gpuMake"] == 'intel':
+		if pix_fmt_out == 'rgb0':
+			pix_fmt_out = 'nv12'
+		if cam_params["codec"] == 'h264':
+			codec = 'h264_qsv'
+		elif cam_params["codec"] == 'h265':
+			codec = 'hevc_qsv'
+		gpu_params = ['-r:v', str(cam_params["frameRate"]),
+					'-bf:v', '0',]
+
+	return pix_fmt_out, codec, gpu_params
+
+
 def OpenWriter(cam_params):
 	folder_name = os.path.join(cam_params["videoFolder"], cam_params["cameraName"])
 	file_name = cam_params["videoFilename"]
@@ -23,61 +93,12 @@ def OpenWriter(cam_params):
 	# CPU compression
 	if cam_params["gpuID"] == -1:
 		print(f'Opened: {full_file_name} using CPU to compress the stream.')
-		if pix_fmt_out == 'rgb0':
-			pix_fmt_out = 'yuv420p'
-		if cam_params["codec"] == 'h264':
-			codec = 'libx264'
-		elif cam_params["codec"] == 'h265':
-			codec = 'libx265'
-		gpu_params = ['-r:v', str(cam_params["frameRate"]),
-					'-preset', 'fast',
-					'-tune', 'fastdecode',
-					'-crf', cam_params["quality"],
-					'-bufsize', '20M',
-					'-maxrate', '10M',
-					'-bf:v', '4',
-					'-vsync', '0',]
+		pix_fmt_out, codec, gpu_params = ConfigureCPUCompresssion(cam_params)
 
 	# GPU compression
 	else:
 		print(f'Opened: {full_file_name} using GPU {cam_params["gpuID"]} to compress the stream.')
-		if cam_params["gpuMake"] == 'nvidia':
-			if cam_params["codec"] == 'h264':
-				codec = 'h264_nvenc'
-			elif cam_params["codec"] == 'h265':
-				codec = 'hevc_nvenc'
-			gpu_params = ['-r:v', str(cam_params["frameRate"]), # important to play nice with vsync '0'
-						'-preset', 'fast', # set to 'fast', 'llhp', or 'llhq' for h264 or hevc
-						'-qp', cam_params["quality"],
-						'-bf:v', '0',
-						'-vsync', '0',
-						'-2pass', '0',
-						'-gpu', str(cam_params["gpuID"]),]
-		elif cam_params["gpuMake"] == 'amd':
-			if pix_fmt_out == 'rgb0':
-				pix_fmt_out = 'yuv420p'
-			if cam_params["codec"] == 'h264':
-				codec = 'h264_amf'
-			elif cam_params["codec"] == 'h265':
-				codec = 'hevc_amf'
-			gpu_params = ['-r:v', str(cam_params["frameRate"]),
-						'-usage', 'lowlatency',
-						'-rc', 'cqp', # constant quantization parameter
-						'-qp_i', cam_params["quality"],
-						'-qp_p', cam_params["quality"],
-						'-qp_b', cam_params["quality"],
-						'-bf:v', '0',
-						'-hwaccel', 'auto',
-						'-hwaccel_device', str(cam_params["gpuID"]),]
-		elif cam_params["gpuMake"] == 'intel':
-			if pix_fmt_out == 'rgb0':
-				pix_fmt_out = 'nv12'
-			if cam_params["codec"] == 'h264':
-				codec = 'h264_qsv'
-			elif cam_params["codec"] == 'h265':
-				codec = 'hevc_qsv'
-			gpu_params = ['-r:v', str(cam_params["frameRate"]),
-						'-bf:v', '0',]
+		pix_fmt_out, codec, gpu_params = ConfigureGPUCompresssion(cam_params)
 
 	# Initialize writer object (imageio-ffmpeg)
 	while(True):
