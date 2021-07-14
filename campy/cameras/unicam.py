@@ -98,13 +98,15 @@ def GrabFrames(cam_params, device, writeQueue, dispQueue, stopQueue):
     if sys.platform == 'win32' and cam_params['cameraMake'] == 'basler':
         dispQueue = cam.OpenImageWindow(cam_params)
 
+    cam_name = cam_params["cameraName"]
+
     # Start grabbing frames from the camera
     grabbing = cam.StartGrabbing(camera)
     time.sleep(1)
-    print(cam_params["cameraName"], "ready to trigger.")
+    print(f"{cam_name} ready to trigger.")
     if cam_params["cameraMake"] == "flir":
         grabTimeOutInMilliseconds = cam_params["grabTimeOutInMilliseconds"]
-        print(f"You have {grabTimeOutInMilliseconds / 1000} seconds to start the recording!")
+        print(f"You have {grabTimeOutInMilliseconds / 1000} seconds to start the recording for {cam_name}!")
 
     frameNumber = 0
     frameCount = 0
@@ -118,7 +120,7 @@ def GrabFrames(cam_params, device, writeQueue, dispQueue, stopQueue):
             # Grab image from camera buffer if available
             grabResult = cam.GrabFrame(camera, frameNumber, grabTimeOutInMilliseconds)
         except Exception as err:
-            print(f'No frames received for {grabTimeOutInMilliseconds / 1000} seconds!', err)
+            print(f'No frames received from {cam_name} for {grabTimeOutInMilliseconds / 1000} seconds!', err)
             writeQueue.append('STOP')
             grabbing = False
             cam.CloseCamera(cam_params, camera, grabdata)
@@ -139,7 +141,7 @@ def GrabFrames(cam_params, device, writeQueue, dispQueue, stopQueue):
         except KeyboardInterrupt:
             pass
         except Exception as e:
-            print('Exception in unicam.py GrabFrames', e)
+            print(f'Exception in unicam.py GrabFrames for camera {cam_name}', e)
             time.sleep(0.001)
 
         try:
@@ -158,16 +160,21 @@ def GrabFrames(cam_params, device, writeQueue, dispQueue, stopQueue):
         if frameCount % grabdata["chunkLengthInFrames"] == 0:
             timeElapsed = timeStamp - grabdata["timeStamp"][0]
             fps_count = int(round(frameCount / timeElapsed))
-            print(f'{cam_params["cameraName"]} collected {frameCount} frames at {fps_count} fps for {int(round(timeElapsed))} sec.')
+            print(f'{cam_name} collected {frameCount} frames at {fps_count} fps for {int(round(timeElapsed))} sec.')
 
 
         cam.ReleaseFrame(grabResult)
 
 
 def SaveMetadata(cam_params, grabdata):
-    # TODO let user choose which metadata to collect
+    """save metadata about the recording and each image
+    to CSV files. Image metadata is also saved to a npy file.
+
+    # TODO let user choose which metadata to collect"""
+    cam_name = cam_params["cameraName"]
+
     full_folder_name = os.path.join(
-        cam_params["videoFolder"], cam_params["cameraName"])
+        cam_params["videoFolder"], cam_name)
     # Zero timeStamps
     timeFirstGrab = grabdata["timeStamp"][0]
     # ToDo: can't remember?
@@ -177,15 +184,17 @@ def SaveMetadata(cam_params, grabdata):
     frame_count = len(grabdata['frameNumber'])
     time_count = grabdata['timeStamp'][-1]
     fps_count = frame_count / time_count
-    print(f'{cam_params["cameraName"]} saved {frame_count} frames at {fps_count} fps.')
+    print(f'{cam_name} saved {frame_count} frames at {fps_count} fps.')
 
     while True:
         meta = cam_params
         try:
             npy_filename = os.path.join(full_folder_name, 'frametimes.npy')
             pd_filename = npy_filename[:-3] + 'csv'
-            x = np.array([grabdata['frameNumber'], grabdata["cameraTime"], grabdata['timeStamp']])
-            df = pd.DataFrame(data=x.T, columns=['frameNumber', 'cameraTime', 'timeStamp'])
+            x = np.array([grabdata['frameNumber'], grabdata["cameraTime"],
+                          grabdata['timeStamp']])
+            df = pd.DataFrame(data=x.T, columns=['frameNumber', 'cameraTime',
+                                                 'timeStamp'])
             df = df.convert_dtypes({'frameNumber': 'int'})
             df.to_csv(pd_filename)
             np.save(npy_filename, x)
@@ -207,11 +216,11 @@ def SaveMetadata(cam_params, grabdata):
         except KeyboardInterrupt:
             break
 
-        print(f'Saved metadata.csv for {cam_params["cameraName"]}')
+        print(f'Saved metadata.csv for {cam_name}')
         break
 
 
-def CloseSystems(params, systems):
+def CloseSystems(params, systems, cam_name):
     makes = GetMakeList(params)
     cam_params = {}
     for m in range(len(makes)):
@@ -222,6 +231,6 @@ def CloseSystems(params, systems):
         try:
             cam.CloseSystem(system, device_list)
         except PySpin.SpinnakerException as ex:
-            print(f'SpinnakerException at unicam.py CloseSystems: {ex}')
+            print(f'SpinnakerException at unicam.py CloseSystems for camera {cam_name}: {ex}')
         except Exception as err:
-            print(f'Exception at unicam.py CloseSystems: {err}')
+            print(f'Exception at unicam.py CloseSystems for camera {cam_name}: {err}')

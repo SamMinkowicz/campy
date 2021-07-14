@@ -317,9 +317,10 @@ def AcquireOneCamera(n_cam):
 
     # Load camera parameters from config
     cam_params = CreateCamParams(params, systems, n_cam)
+    cam_name = cam_params['cameraName']
 
     # Import the correct camera module for your camera
-    print(f'Importing {cam_params["cameraMake"]} cam for {cam_params["cameraName"]}')
+    print(f'Importing {cam_params["cameraMake"]} cam for {cam_name}')
     # cam = unicam.ImportCam(cam_params) # Could this be the reason for not being able to close the systems?
 
     # Initialize queues for video writer and stop message
@@ -349,17 +350,17 @@ def AcquireOneCamera(n_cam):
     campipe.WriteFrames(cam_params, writeQueue, stopQueue)
 
     # Close the systems and devices properly
-    unicam.CloseSystems(params, systems)
+    unicam.CloseSystems(params, systems, cam_name)
 
     # Wrap-up the recording
-    folder_name = os.path.join(cam_params["videoFolder"], cam_params["cameraName"])
+    folder_name = os.path.join(cam_params["videoFolder"], cam_name)
     parent = os.path.split(folder_name)[0]
     timestamp = f"{datetime.datetime.now():%Y-%m-%d-%H-%M}"
 
     for f in os.listdir(folder_name):
         file_abs_path = os.path.join(folder_name, f)
         new_filename = os.path.join(parent,
-                '_'.join((cam_params["cameraName"], timestamp, f)))
+                '_'.join((cam_name, timestamp, f)))
         move(file_abs_path, new_filename)
     os.rmdir(folder_name)
 
