@@ -227,7 +227,7 @@ def CloseSystems(params, systems, cam_name):
         device_list = systems[makes[m]]["deviceList"]
         cam = ImportCam(cam_params)
         try:
-            cam.CloseSystem(system, device_list)
+            cam.CloseSystem(system, device_list, cam_name)
         except PySpin.SpinnakerException as ex:
             print(f'SpinnakerException at unicam.py CloseSystems for camera {cam_name}: {ex}')
         except Exception as err:
