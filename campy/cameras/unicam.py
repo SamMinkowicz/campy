@@ -48,10 +48,9 @@ def GetDeviceList(params, systems):
 
 
 def LoadDevice(cam_params, systems):
-    system = systems[cam_params["cameraMake"]]["system"]
     device_list = systems[cam_params["cameraMake"]]["deviceList"]
     cam = ImportCam(cam_params)
-    device = cam.LoadDevice(cam_params, system, device_list)
+    device = cam.LoadDevice(cam_params, device_list)
     return device
 
 

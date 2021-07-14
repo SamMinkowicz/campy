@@ -572,7 +572,7 @@ def GetDeviceList(system):
     return system.GetCameras()
 
 
-def LoadDevice(cam_params, system, device_list):
+def LoadDevice(cam_params, device_list):
     return device_list.GetByIndex(cam_params["cameraSelection"])
 
 
