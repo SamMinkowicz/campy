@@ -349,9 +349,6 @@ def AcquireOneCamera(n_cam):
     # Start video file writer (main 'consumer' thread)
     campipe.WriteFrames(cam_params, writeQueue, stopQueue)
 
-    # Close the systems and devices properly
-    unicam.CloseSystems(params, systems, cam_name)
-
     # Wrap-up the recording
     folder_name = os.path.join(cam_params["videoFolder"], cam_name)
     parent = os.path.split(folder_name)[0]
@@ -373,6 +370,8 @@ def Main():
     if sys.platform == "win32":
         pool = mp.Pool(processes=params['numCams'])
         pool.map(AcquireOneCamera, range(0, params['numCams']))
+        # Close the systems and devices properly
+        unicam.CloseSystems(params, systems)
 
     elif sys.platform == "linux" or sys.platform == "linux2":
         ctx = mp.get_context("spawn")  # for linux compatibility

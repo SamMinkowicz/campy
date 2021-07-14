@@ -220,13 +220,14 @@ def SaveMetadata(cam_params, grabdata):
         break
 
 
-def CloseSystems(params, systems, cam_name):
+def CloseSystems(params, systems):
     makes = GetMakeList(params)
     cam_params = {}
     for m in range(len(makes)):
         cam_params["cameraMake"] = makes[m]
         system = systems[makes[m]]["system"]
         device_list = systems[makes[m]]["deviceList"]
+        cam_name = params['cameraNames'][m]
         cam = ImportCam(cam_params)
         try:
             cam.CloseSystem(system, device_list, cam_name)
