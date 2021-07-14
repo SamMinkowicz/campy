@@ -319,10 +319,6 @@ def AcquireOneCamera(n_cam):
     cam_params = CreateCamParams(params, systems, n_cam)
     cam_name = cam_params['cameraName']
 
-    # Import the correct camera module for your camera
-    print(f'Importing {cam_params["cameraMake"]} cam for {cam_name}')
-    # cam = unicam.ImportCam(cam_params) # Could this be the reason for not being able to close the systems?
-
     # Initialize queues for video writer and stop message
     writeQueue = deque()
     stopQueue = deque([], 1)
