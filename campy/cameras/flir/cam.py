@@ -719,6 +719,7 @@ def CloseCamera(camera, cam_name):
                 camera.DeInit()
                 del camera
                 time.sleep(2.5)
+                break
 
             except PySpin.SpinnakerException as ex:
                 print(f'Error for camera {cam_name}: {ex}')
@@ -735,7 +736,7 @@ def CloseSystem(system, device_list, cam_name):
         system.ReleaseInstance()
         print(f'Closed systems for {cam_name}')
     except PySpin.SpinnakerException as ex:
-        print(f'SpinnakerException at cam.py CloseSystem for camera {cam_name}: {ex}')
+        print(f'SpinnakerException at cam.py CloseSystem for {cam_name}: {ex}')
         print('passing from', __name__)
     except Exception as err:
-        print(f'Exception at cam.py CloseSystem for camera {cam_name}: {err}')
+        print(f'Exception at cam.py CloseSystem for {cam_name}: {err}')
