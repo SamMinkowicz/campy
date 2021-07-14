@@ -8,10 +8,10 @@ import matplotlib as mpl
 mpl.use('Qt5Agg') # disregard qtapp warning...
 import matplotlib.pyplot as plt
 
-def DrawFigure(num):
+def DrawFigure(cam_name):
 	mpl.rcParams['toolbar'] = 'None'
 
-	figure = plt.figure(num)
+	figure = plt.figure(cam_name)
 	ax = plt.axes([0,0,1,1], frameon=False)
 
 	plt.axis('off')
@@ -28,7 +28,7 @@ def DrawFigure(num):
 
 def DisplayFrames(cam_params, dispQueue):
 	if not (sys.platform=='win32' and cam_params['cameraMake'] == 'basler'):
-		figure, imageWindow = DrawFigure(cam_params["n_cam"]+1)
+		figure, imageWindow = DrawFigure(cam_params["cameraName"])
 		while(True):
 			try:
 				if dispQueue:
