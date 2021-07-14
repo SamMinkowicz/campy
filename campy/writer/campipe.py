@@ -77,13 +77,16 @@ def ConfigureGPUCompresssion(cam_params):
 
 
 def OpenWriter(cam_params):
-	folder_name = os.path.join(cam_params["videoFolder"], cam_params["cameraName"])
-	file_name = cam_params["videoFilename"]
-	full_file_name = os.path.join(folder_name, file_name)
+	folder_name = cam_params["videoFolder"]
 
 	if not os.path.isdir(folder_name):
 		os.makedirs(folder_name)
 		print(f'Made directory {folder_name}.')
+
+	file_name = '_'.join((cam_params['cameraName'],
+	                      cam_params['record_timestamp'],
+						  cam_params["videoFilename"]))
+	full_file_name = os.path.join(folder_name, file_name)
 
 	# Load defaults
 	pix_fmt_out = cam_params["pixelFormatOutput"]
@@ -120,7 +123,7 @@ def OpenWriter(cam_params):
 				writer.send(None) # Initialize the generator
 				break
 			except Exception as e:
-				logging.error(f'Caught exception (campipe.py line 102): {e}')
+				logging.error(f'Caught exception in campipe.py: {e}')
 				time.sleep(0.1)
 
 		except KeyboardInterrupt:

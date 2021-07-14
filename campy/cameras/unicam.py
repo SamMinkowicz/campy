@@ -173,14 +173,19 @@ def SaveMetadata(cam_params, grabdata):
     # TODO let user choose which metadata to collect"""
     cam_name = cam_params["cameraName"]
 
-    full_folder_name = os.path.join(
-        cam_params["videoFolder"], cam_name)
-    os.makedirs(full_folder_name, exist_ok=True)
+    folder_name = cam_params["videoFolder"]
+    if not os.path.isdir(folder_name):
+        os.makedirs(folder_name)
+        print(f'Made directory {folder_name}.')
+    base_file_name = '_'.join((cam_params['cameraName'],
+	                           cam_params['record_timestamp']))
+
     # Zero timeStamps
     timeFirstGrab = grabdata["timeStamp"][0]
     # ToDo: can't remember?
     grabdata["cameraTime"] = grabdata["timeStamp"].copy()
-    grabdata["timeStamp"] = [i - timeFirstGrab for i in grabdata["timeStamp"].copy()]
+    grabdata["timeStamp"] = [i - timeFirstGrab
+                             for i in grabdata["timeStamp"].copy()]
     # Get the frame and time counts to save into metadata
     frame_count = len(grabdata['frameNumber'])
     time_count = grabdata['timeStamp'][-1]
@@ -192,7 +197,8 @@ def SaveMetadata(cam_params, grabdata):
         try:
             x = np.array([grabdata['frameNumber'], grabdata["cameraTime"],
                           grabdata['timeStamp']])
-            frametimes_filename = os.path.join(full_folder_name, 'frametimes.csv')
+            frametimes_filename = os.path.join(folder_name,
+                                        base_file_name + '_frametimes.csv')
             df = pd.DataFrame(data=x.T, columns=['frameNumber', 'cameraTime',
                                                  'timeStamp'])
             df = df.convert_dtypes({'frameNumber': 'int'})
@@ -202,7 +208,8 @@ def SaveMetadata(cam_params, grabdata):
         except KeyboardInterrupt:
             break
 
-        metadata_filename = os.path.join(full_folder_name, 'metadata.csv')
+        metadata_filename = os.path.join(folder_name,
+                                    base_file_name + '_metadata.csv')
         meta['totalFrames'] = len(grabdata['frameNumber'])
         meta['totalTime'] = grabdata['timeStamp'][-1]
         keys = meta.keys()

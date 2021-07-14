@@ -319,6 +319,9 @@ def AcquireOneCamera(n_cam):
     cam_params = CreateCamParams(params, systems, n_cam)
     cam_name = cam_params['cameraName']
 
+    timestamp = f"{datetime.datetime.now():%Y-%m-%d-%H-%M}"
+    cam_params['record_timestamp'] = timestamp
+
     # Initialize queues for video writer and stop message
     writeQueue = deque()
     stopQueue = deque([], 1)
@@ -346,16 +349,15 @@ def AcquireOneCamera(n_cam):
     campipe.WriteFrames(cam_params, writeQueue, stopQueue)
 
     # Wrap-up the recording
-    folder_name = os.path.join(cam_params["videoFolder"], cam_name)
-    parent = os.path.split(folder_name)[0]
-    timestamp = f"{datetime.datetime.now():%Y-%m-%d-%H-%M}"
+    # folder_name = os.path.join(cam_params["videoFolder"], cam_name)
+    # parent = os.path.split(folder_name)[0]
 
-    for f in os.listdir(folder_name):
-        file_abs_path = os.path.join(folder_name, f)
-        new_filename = os.path.join(parent,
-                '_'.join((cam_name, timestamp, f)))
-        move(file_abs_path, new_filename)
-    os.rmdir(folder_name)
+    # for f in os.listdir(folder_name):
+    #     file_abs_path = os.path.join(folder_name, f)
+    #     new_filename = os.path.join(parent,
+    #             '_'.join((cam_name, timestamp, f)))
+    #     move(file_abs_path, new_filename)
+    # os.rmdir(folder_name)
 
 
 def Main():
