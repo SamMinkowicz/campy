@@ -114,7 +114,8 @@ def GrabFrames(cam_params, device, writeQueue, dispQueue, stopQueue):
         if stopQueue:
             writeQueue.append('STOP')
             grabbing = False
-            cam.CloseCamera(cam_params, camera, grabdata)
+            cam.CloseCamera(camera, cam_params['cameraName'])
+            SaveMetadata(cam_params, grabdata)
             break
         try:
             # Grab image from camera buffer if available
@@ -123,7 +124,8 @@ def GrabFrames(cam_params, device, writeQueue, dispQueue, stopQueue):
             print(f'No frames received from {cam_name} for {grabTimeOutInMilliseconds / 1000} seconds!', err)
             writeQueue.append('STOP')
             grabbing = False
-            cam.CloseCamera(cam_params, camera, grabdata)
+            cam.CloseCamera(camera, cam_params['cameraName'])
+            SaveMetadata(cam_params, grabdata)
             break
 
         try:

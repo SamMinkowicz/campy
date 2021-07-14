@@ -708,10 +708,9 @@ def ReleaseFrame(grabResult):
     grabResult.Release()
 
 
-def CloseCamera(cam_params, camera, grabdata):
-    cam_name = cam_params['cameraName']
+def CloseCamera(camera, cam_name):
+    """Close camera after acquisition stops"""
     print(f'Closing {cam_name}... Please wait.')
-    # Close camera after acquisition stops
     while True:
         try:
             try:
@@ -719,11 +718,7 @@ def CloseCamera(cam_params, camera, grabdata):
                 camera.EndAcquisition()
                 camera.DeInit()
                 del camera
-
-                # Save metadata
-                unicam.SaveMetadata(cam_params, grabdata)
                 time.sleep(2.5)
-                break
 
             except PySpin.SpinnakerException as ex:
                 print(f'Error for camera {cam_name}: {ex}')
@@ -732,8 +727,6 @@ def CloseCamera(cam_params, camera, grabdata):
                 break
         except KeyboardInterrupt:
             break
-
-
 
 
 def CloseSystem(system, device_list):
