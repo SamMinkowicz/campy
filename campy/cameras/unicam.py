@@ -175,6 +175,7 @@ def SaveMetadata(cam_params, grabdata):
 
     full_folder_name = os.path.join(
         cam_params["videoFolder"], cam_name)
+    os.makedirs(full_folder_name, exist_ok=True)
     # Zero timeStamps
     timeFirstGrab = grabdata["timeStamp"][0]
     # ToDo: can't remember?
@@ -189,6 +190,8 @@ def SaveMetadata(cam_params, grabdata):
     while True:
         meta = cam_params
         try:
+            x = np.array([grabdata['frameNumber'], grabdata["cameraTime"],
+                          grabdata['timeStamp']])
             frametimes_filename = os.path.join(full_folder_name, 'frametimes.csv')
             df = pd.DataFrame(data=x.T, columns=['frameNumber', 'cameraTime',
                                                  'timeStamp'])
