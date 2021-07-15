@@ -718,8 +718,6 @@ def CloseCamera(camera, cam_name):
                 camera.EndAcquisition()
                 camera.DeInit()
                 del camera
-                time.sleep(2.5)
-                break
 
             except PySpin.SpinnakerException as ex:
                 print(f'Error for camera {cam_name}: {ex}')

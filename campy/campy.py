@@ -339,14 +339,16 @@ def AcquireOneCamera(n_cam):
     device = unicam.LoadDevice(cam_params, systems)
 
     # Start grabbing frames ('producer' thread)
-    threading.Thread(
+    frame_grab_thread = threading.Thread(
         target=unicam.GrabFrames,
-        daemon=True,
         args=(cam_params, device, writeQueue, dispQueue, stopQueue,),
-    ).start()
+    )
+    frame_grab_thread.start()
 
     # Start video file writer (main 'consumer' thread)
     campipe.WriteFrames(cam_params, writeQueue, stopQueue)
+
+    frame_grab_thread.join()
 
 
 def Main():
