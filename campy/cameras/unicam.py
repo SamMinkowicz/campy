@@ -167,7 +167,7 @@ def GrabFrames(cam_params, device, writeQueue, dispQueue, stopQueue):
         cam.ReleaseFrame(grabResult)
 
 
-def SaveRecordingMetadata(cam_params, grabdata, base_file_name, cam_name):
+def SaveRecordingMetadata(cam_params, grabdata, base_path, cam_name):
     """Save recording metadata to a csv"""
     # Get the frame and time counts to save into metadata
     frame_count = len(grabdata['frameNumber'])
@@ -180,8 +180,7 @@ def SaveRecordingMetadata(cam_params, grabdata, base_file_name, cam_name):
     cam_params['totalTime'] = time_count
     cam_params['actualFps'] = fps_count
 
-    metadata_filename = os.path.join(folder_name,
-                                     base_file_name + '_metadata.csv')
+    metadata_filename = base_path + '_metadata.csv'
     with open(metadata_filename, 'w', newline='') as f:
         w = csv.writer(f, delimiter=',', quoting=csv.QUOTE_ALL)
         for row in cam_params.items():
@@ -190,12 +189,11 @@ def SaveRecordingMetadata(cam_params, grabdata, base_file_name, cam_name):
     print(f'Saved metadata.csv for {cam_name}')
 
 
-def SaveFrameTimestamps(grabdata, base_file_name, cam_name):
+def SaveFrameTimestamps(grabdata, base_path, cam_name):
     """Save frame timestamps to a csv"""
     x = np.array([grabdata['frameNumber'], grabdata["cameraTime"],
                   grabdata['timeStamp']])
-    frametimes_filename = os.path.join(folder_name,
-                                       base_file_name + '_frametimes.csv')
+    frametimes_filename = base_path + '_frametimes.csv'
     df = pd.DataFrame(data=x.T, columns=['frameNumber', 'cameraTime',
                                          'timeStamp'])
     df = df.convert_dtypes({'frameNumber': 'int'})
@@ -217,6 +215,7 @@ def SaveMetadata(cam_params, grabdata):
 
     base_file_name = '_'.join((cam_params['cameraName'],
 	                           cam_params['record_timestamp']))
+    base_path = os.path.join(folder_name, base_file_name)
 
     if not grabdata["timeStamp"]:
         print(f'No timestamps found for {cam_name}. No metadata will be saved')
@@ -228,8 +227,8 @@ def SaveMetadata(cam_params, grabdata):
     grabdata["timeStamp"] = [i - timeFirstGrab
                              for i in grabdata["timeStamp"].copy()]
 
-    SaveRecordingMetadata(cam_params, grabdata, base_file_name, cam_name)
-    SaveFrameTimestamps(grabdata, base_file_name, cam_name)
+    SaveRecordingMetadata(cam_params, grabdata, base_path, cam_name)
+    SaveFrameTimestamps(grabdata, base_path, cam_name)
 
 
 def CloseSystems(params, systems):
