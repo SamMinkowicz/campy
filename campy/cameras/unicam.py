@@ -167,6 +167,43 @@ def GrabFrames(cam_params, device, writeQueue, dispQueue, stopQueue):
         cam.ReleaseFrame(grabResult)
 
 
+def SaveRecordingMetadata(cam_params, grabdata, base_file_name, cam_name):
+    """Save recording metadata to a csv"""
+    # Get the frame and time counts to save into metadata
+    frame_count = len(grabdata['frameNumber'])
+    time_count = grabdata['timeStamp'][-1]
+    fps_count = frame_count / time_count
+
+    print(f'{cam_name} saved {frame_count} frames at {fps_count} fps.')
+
+    cam_params['totalFrames'] = frame_count
+    cam_params['totalTime'] = time_count
+    cam_params['actualFps'] = fps_count
+
+    metadata_filename = os.path.join(folder_name,
+                                     base_file_name + '_metadata.csv')
+    with open(metadata_filename, 'w', newline='') as f:
+        w = csv.writer(f, delimiter=',', quoting=csv.QUOTE_ALL)
+        for row in cam_params.items():
+            w.writerow(row)
+
+    print(f'Saved metadata.csv for {cam_name}')
+
+
+def SaveFrameTimestamps(grabdata, base_file_name, cam_name):
+    """Save frame timestamps to a csv"""
+    x = np.array([grabdata['frameNumber'], grabdata["cameraTime"],
+                  grabdata['timeStamp']])
+    frametimes_filename = os.path.join(folder_name,
+                                       base_file_name + '_frametimes.csv')
+    df = pd.DataFrame(data=x.T, columns=['frameNumber', 'cameraTime',
+                                         'timeStamp'])
+    df = df.convert_dtypes({'frameNumber': 'int'})
+    df.to_csv(frametimes_filename)
+    print(f'Saved framtimes.csv for {cam_name}')
+    return
+
+
 def SaveMetadata(cam_params, grabdata):
     """save recording metadata and save frame timestamps to CSV files.
 
@@ -177,54 +214,22 @@ def SaveMetadata(cam_params, grabdata):
     if not os.path.isdir(folder_name):
         os.makedirs(folder_name)
         print(f'Made directory {folder_name}.')
+
     base_file_name = '_'.join((cam_params['cameraName'],
 	                           cam_params['record_timestamp']))
 
+    if not grabdata["timeStamp"]:
+        print(f'No timestamps found for {cam_name}. No metadata will be saved')
+        return
+
     # Zero timeStamps
     timeFirstGrab = grabdata["timeStamp"][0]
-    # ToDo: can't remember?
     grabdata["cameraTime"] = grabdata["timeStamp"].copy()
     grabdata["timeStamp"] = [i - timeFirstGrab
                              for i in grabdata["timeStamp"].copy()]
-    # Get the frame and time counts to save into metadata
-    frame_count = len(grabdata['frameNumber'])
-    time_count = grabdata['timeStamp'][-1]
-    fps_count = frame_count / time_count
-    print(f'{cam_name} saved {frame_count} frames at {fps_count} fps.')
 
-    while True:
-        meta = cam_params
-        try:
-            x = np.array([grabdata['frameNumber'], grabdata["cameraTime"],
-                          grabdata['timeStamp']])
-            frametimes_filename = os.path.join(folder_name,
-                                        base_file_name + '_frametimes.csv')
-            df = pd.DataFrame(data=x.T, columns=['frameNumber', 'cameraTime',
-                                                 'timeStamp'])
-            df = df.convert_dtypes({'frameNumber': 'int'})
-            df.to_csv(frametimes_filename)
-            print(f'Saved framtimes.csv for {cam_name}')
-
-        except KeyboardInterrupt:
-            break
-
-        metadata_filename = os.path.join(folder_name,
-                                    base_file_name + '_metadata.csv')
-        meta['totalFrames'] = len(grabdata['frameNumber'])
-        meta['totalTime'] = grabdata['timeStamp'][-1]
-        keys = meta.keys()
-        vals = meta.values()
-
-        try:
-            with open(metadata_filename, 'w', newline='') as f:
-                w = csv.writer(f, delimiter=',', quoting=csv.QUOTE_ALL)
-                for row in meta.items():
-                    w.writerow(row)
-        except KeyboardInterrupt:
-            break
-
-        print(f'Saved metadata.csv for {cam_name}')
-        break
+    SaveRecordingMetadata(cam_params, grabdata, base_file_name, cam_name)
+    SaveFrameTimestamps(grabdata, base_file_name, cam_name)
 
 
 def CloseSystems(params, systems):
