@@ -31,6 +31,7 @@ import ast
 import yaml
 import logging
 from shutil import move
+import serial
 
 
 def CombineConfigAndClargs(clargs):
@@ -356,6 +357,11 @@ def Main():
     if params["ffmpegPath"]:
         os.environ["IMAGEIO_FFMPEG_EXE"] = params["ffmpegPath"]
 
+    # send recording length to the arduino
+    arduino = serial.Serial(port='COM3', baudrate=19200)
+    time.sleep(3)
+    arduino.write(str(params['recTimeInSec']).encode())
+
     if sys.platform == "win32":
         pool = mp.Pool(processes=params['numCams'])
         pool.map(AcquireOneCamera, range(0, params['numCams']))
@@ -367,6 +373,8 @@ def Main():
         pool = ctx.Pool(processes=params['numCams'])
         p = pool.map_async(AcquireOneCamera, range(0, params['numCams']))
         p.get()
+
+    arduino.close()
 
 
 parser = ArgumentParser(
