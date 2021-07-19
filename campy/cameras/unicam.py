@@ -177,7 +177,7 @@ def SaveRecordingMetadata(cam_params, grabdata, base_path, cam_name):
     print(f'{cam_name} saved {frame_count} frames at {fps_count} fps.')
 
     cam_params['totalFrames'] = frame_count
-    cam_params['totalTime'] = time_count
+    cam_params['totalTimeSecs'] = time_count
     cam_params['actualFps'] = fps_count
 
     metadata_filename = base_path + '_metadata.csv'
