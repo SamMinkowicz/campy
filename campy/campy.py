@@ -306,7 +306,25 @@ def ParseClargs(parser):
         "--triggerType",
         dest="triggerType",
         type=str,
-        help="Trigger type. Only used for FLIR cameras",
+        help="Trigger type: hardware or software. Only used for FLIR cameras",
+    )
+    parser.add_argument(
+        "--controlRecordingTimeInArduino",
+        dest="controlRecordingTimeInArduino",
+        type=bool,
+        help="Whether to control the recording time in the Arduino",
+    )
+    parser.add_argument(
+        "--arduinoPort",
+        dest="arduinoPort",
+        type=str,
+        help="Arduino's serial port",
+    )
+    parser.add_argument(
+        "--arduinoBaudRate",
+        dest="arduinoBaudRate",
+        type=int,
+        help="Arduino baud rate.",
     )
     clargs = parser.parse_args()
     return clargs
@@ -357,10 +375,16 @@ def Main():
     if params["ffmpegPath"]:
         os.environ["IMAGEIO_FFMPEG_EXE"] = params["ffmpegPath"]
 
-    # send recording length to the arduino
-    arduino = serial.Serial(port='COM3', baudrate=19200)
-    time.sleep(3)
-    arduino.write(str(params['recTimeInSec']).encode())
+    if params['controlRecordingTimeInArduino']:
+        print('Arduino will be controlling recording time')
+        # send recording length to the arduino
+        try:
+            arduino = serial.Serial(port=params['arduinoPort'],
+                                    baudrate=params['arduinoBaudRate'])
+            time.sleep(3)  # wait for the port to be opened
+            arduino.write(str(params['recTimeInSec']).encode())
+        except Exception as e:
+            print(f"Cannot communicate with the Arduino: {e}")
 
     if sys.platform == "win32":
         pool = mp.Pool(processes=params['numCams'])
@@ -374,7 +398,8 @@ def Main():
         p = pool.map_async(AcquireOneCamera, range(0, params['numCams']))
         p.get()
 
-    arduino.close()
+    if params['controlRecordingTimeInArduino']:
+        arduino.close()
 
 
 parser = ArgumentParser(
