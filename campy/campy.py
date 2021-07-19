@@ -309,6 +309,12 @@ def ParseClargs(parser):
         help="Trigger type: hardware or software. Only used for FLIR cameras",
     )
     parser.add_argument(
+        "--throughputLimit",
+        dest="throughputLimit",
+        type=int,
+        help="Maximum bandwidth (bps) of the data coming out of the camera. Only used for FLIR cameras",
+    )
+    parser.add_argument(
         "--controlRecordingTimeInArduino",
         dest="controlRecordingTimeInArduino",
         type=bool,

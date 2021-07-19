@@ -530,6 +530,25 @@ def ConfigureAcquisitionMode(camera, cam_name):
     return result
 
 
+def set_throughput_limit(camera, cam_name):
+    try:
+        node_throughput_limit = PySpin.CIntegerPtr(
+            camera.GetNodeMap().GetNode('DeviceLinkThroughputLimit'))
+        if PySpin.IsAvailable(node_throughput_limit) and PySpin.IsWritable(node_throughput_limit):
+            # throughput_limit_to_set = cam_params["ThroughputLimit"]
+            # throughput_limit_to_set = 380000000
+            throughput_limit_to_set = 380000000
+            node_throughput_limit.SetValue(throughput_limit_to_set)
+            print(f'\nThroughput limit for {cam_name} set to {node_throughput_limit.GetValue()}...')
+            return True
+        else:
+            print('Throughput limit not available...\n')
+            return False
+
+    except PySpin.SpinnakerException as ex:
+        print(f'Error: {ex}\n')
+
+
 def PrintDeviceInfo(nodemap, cam_num):
     """
     This function prints the device information of the camera from the transport
@@ -603,6 +622,9 @@ def OpenCamera(cam_params, camera):
 
 def LoadSettings(cam_params, camera):
     cam_name = cam_params['cameraName']
+
+    # set bandwidth of transport from camera
+    set_throughput_limit(camera, cam_name)
 
     # set acquisition mode to continuous
     acquisitionConfig = ConfigureAcquisitionMode(camera, cam_name=cam_name)
