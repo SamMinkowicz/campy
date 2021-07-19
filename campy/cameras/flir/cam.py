@@ -530,7 +530,7 @@ def ConfigureAcquisitionMode(camera, cam_name):
     return result
 
 
-def set_throughput_limit(camera, cam_name):
+def SetThroughputLimit(camera, cam_name):
     try:
         node_throughput_limit = PySpin.CIntegerPtr(
             camera.GetNodeMap().GetNode('DeviceLinkThroughputLimit'))
@@ -544,6 +544,31 @@ def set_throughput_limit(camera, cam_name):
         else:
             print('Throughput limit not available...\n')
             return False
+
+    except PySpin.SpinnakerException as ex:
+        print(f'Error: {ex}\n')
+
+
+def SetFrameRate(camera, cam_name, frame_rate_to_set):
+    # the frame rate on the camera needs to be >= to the hardware triggered
+    # frame rate
+    frame_rate_to_set = 1.1*frame_rate_to_set
+
+    try:
+        node_enable_frame_rate = PySpin.CBooleanPtr(
+            camera.GetNodeMap().GetNode('AcquisitionFrameRateEnable'))
+        if PySpin.IsAvailable(node_enable_frame_rate) and PySpin.IsWritable(node_enable_frame_rate):
+            node_enable_frame_rate.SetValue(True)
+        else:
+            print(f'Cannot set frame rate limit for {cam_name}...\n')
+
+        node_frame_rate = PySpin.CFloatPtr(
+            camera.GetNodeMap().GetNode('AcquisitionFrameRate'))
+        if PySpin.IsAvailable(node_enable_frame_rate) and PySpin.IsWritable(node_enable_frame_rate):
+            node_frame_rate.SetValue(frame_rate_to_set)
+            print(f'\n{cam_name} set to acquire frames up to {node_frame_rate.GetValue()} fps...')
+        else:
+            print(f'Cannot set frame rate limit for {cam_name}...\n')
 
     except PySpin.SpinnakerException as ex:
         print(f'Error: {ex}\n')
@@ -624,11 +649,13 @@ def LoadSettings(cam_params, camera):
     cam_name = cam_params['cameraName']
 
     # set bandwidth of transport from camera
-    set_throughput_limit(camera, cam_name)
+    SetThroughputLimit(camera, cam_name)
 
     # set acquisition mode to continuous
     acquisitionConfig = ConfigureAcquisitionMode(camera, cam_name=cam_name)
     cam_params["acquisitionConfig"] = acquisitionConfig
+
+    SetFrameRate(camera, cam_name, cam_params['frameRate'])
 
     # Configure trigger
     trigConfig = ConfigureTrigger(cam_params, camera, cam_name=cam_name)
