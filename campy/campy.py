@@ -98,8 +98,13 @@ def CreateCamParams(params, systems, n_cam):
                       "displayDownsample": 2, }
 
     cam_params = OptParams(params, cam_params, default_params)
-    cam_params["device"] = systems[cam_params["cameraMake"]]["deviceList"][cam_params["cameraSelection"]]
-    cam_params["cameraSerialNo"] = systems[cam_params["cameraMake"]]["serials"][cam_params["cameraSelection"]]
+    try:
+        cam_params["device"] = systems[cam_params["cameraMake"]]["deviceList"][cam_params["cameraSelection"]]
+        cam_params["cameraSerialNo"] = systems[cam_params["cameraMake"]]["serials"][cam_params["cameraSelection"]]
+    except IndexError:
+        print(f'Did not find {cam_params["numCams"]} cameras. Exiting...')
+        return
+
     return cam_params
 
 
@@ -342,6 +347,8 @@ def AcquireOneCamera(n_cam):
 
     # Load camera parameters from config
     cam_params = CreateCamParams(params, systems, n_cam)
+    if not cam_params:
+        return
     cam_name = cam_params['cameraName']
 
     timestamp = f"{datetime.datetime.now():%Y-%m-%d-%H-%M}"
@@ -391,6 +398,7 @@ def Main():
             arduino.write(str(params['recTimeInSec']).encode())
         except Exception as e:
             print(f"Cannot communicate with the Arduino: {e}")
+            params['controlRecordingTimeInArduino'] = False
 
     if sys.platform == "win32":
         pool = mp.Pool(processes=params['numCams'])
