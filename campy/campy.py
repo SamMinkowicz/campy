@@ -82,7 +82,7 @@ def UnpackParamLists(cam_params, n_cam):
     return cam_params
 
 
-def FIllWithDefaultParams(cam_params):
+def FillWithDefaultParams(cam_params):
     """Assign default parameter if it isn't passed by user"""
     default_params = {"frameRate": 100,
                       "cameraSettings": "./campy/cameras/basler/settings/acA1920-150uc_1152x1024p_100fps_trigger_RGB_p6.pfs",
@@ -118,7 +118,7 @@ def CreateCamParams(params, systems, n_cam):
     cam_params = UnpackParamLists(cam_params, n_cam)
 
     # Use default params if not present in config or not overwritten by cameraSettings
-    cam_params = FIllWithDefaultParams(cam_params)
+    cam_params = FillWithDefaultParams(cam_params)
 
     # Add info about found cameras
     cam_make = cam_params['cameraMake']
