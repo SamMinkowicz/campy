@@ -70,17 +70,21 @@ def LoadSystemsAndDevices(params):
     return params, systems
 
 
-def CreateCamParams(params, systems, n_cam):
-    # Insert camera-specific metadata from parameters into cam_params dictionary
-    cam_params = params
-    cam_params["n_cam"] = n_cam
-    cam_params["baseFolder"] = os.getcwd()
-    cam_params["cameraName"] = params["cameraNames"][n_cam]
+def UnpackParamLists(cam_params, n_cam):
+    """If a list is passed for a given parameter, assign the ith element to
+    the ith camera"""
+    for key in cam_params.keys():
+        if isinstance(cam_params[key], list):
+            if len(params[key]) == params["numCams"]:
+                cam_params[key] = cam_params[key][n_cam]
+            else:
+                print(f'{key} list is not the same size as numCams.')
+    return cam_params
 
-    # Default configuration parameters dictionary.
-    # Default value is used if variable is either not present in config or not overwritten by cameraSettings.
+
+def FIllWithDefaultParams(cam_params):
+    """Assign default parameter if it isn't passed by user"""
     default_params = {"frameRate": 100,
-                      "cameraSelection": n_cam,
                       "cameraSettings": "./campy/cameras/basler/settings/acA1920-150uc_1152x1024p_100fps_trigger_RGB_p6.pfs",
                       "cameraMake": "flir",
                       "cameraTrigger": 'Line3',
@@ -95,9 +99,28 @@ def CreateCamParams(params, systems, n_cam):
                       "quality": "21",
                       "chunkLengthInSec": 60,
                       "displayFrameRate": 10,
-                      "displayDownsample": 2, }
+                      "displayDownsample": 2}
 
-    cam_params = OptParams(params, cam_params, default_params)
+    for key in default_params.keys():
+        if key not in cam_params.keys():
+            cam_params[key] = default_params[key]
+    return cam_params
+
+
+def CreateCamParams(params, systems, n_cam):
+    """Insert camera-specific metadata from parameters into cam_params dictionary"""
+    cam_params = params
+    cam_params["n_cam"] = n_cam
+    cam_params["baseFolder"] = os.getcwd()
+    cam_params["cameraName"] = params["cameraNames"][n_cam]
+
+    # unpack parameter lists
+    cam_params = UnpackParamLists(cam_params, n_cam)
+
+    # Use default params if not present in config or not overwritten by cameraSettings
+    cam_params = FIllWithDefaultParams(cam_params)
+
+    # Add info about found cameras
     cam_make = cam_params['cameraMake']
     cam_selection = cam_params['cameraSelection']
     try:
@@ -107,23 +130,6 @@ def CreateCamParams(params, systems, n_cam):
         print(f'User wants to record from {cam_params["numCams"]} cameras but only found {len(systems[cam_make]["serials"])} cameras. Exiting...')
         return
 
-    return cam_params
-
-
-def OptParams(params, cam_params, default_params):
-    # Optionally, user provides a single string or a list of strings, equal in size to numCams
-    # String is passed to all cameras. Else, each list item is passed to its respective camera
-    opt_params_list = list(default_params)
-    for i in range(len(opt_params_list)):
-        key = opt_params_list[i]
-        if key in params:
-            if type(params[key]) is list:
-                if len(params[key]) == params["numCams"]:
-                    cam_params[key] = params[key][cam_params["n_cam"]]
-                else:
-                    print(f'{key} list is not the same size as numCams.')
-        else:
-            cam_params[key] = default_params[key]
     return cam_params
 
 
