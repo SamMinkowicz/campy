@@ -82,9 +82,9 @@ def CreateCamParams(params, systems, n_cam):
     default_params = {"frameRate": 100,
                       "cameraSelection": n_cam,
                       "cameraSettings": "./campy/cameras/basler/settings/acA1920-150uc_1152x1024p_100fps_trigger_RGB_p6.pfs",
-                      "cameraMake": "basler",
-                      "cameraTrigger": 'Line0',
-                      "pixelFormatInput": "rgb24",
+                      "cameraMake": "flir",
+                      "cameraTrigger": 'Line3',
+                      "pixelFormatInput": "bayer_rggb8",
                       "pixelFormatOutput": "rgb0",
                       "frameWidth": 1152,
                       "frameHeight": 1024,
@@ -93,7 +93,7 @@ def CreateCamParams(params, systems, n_cam):
                       "gpuMake": "nvidia",
                       "codec": "h264",
                       "quality": "21",
-                      "chunkLengthInSec": 30,
+                      "chunkLengthInSec": 60,
                       "displayFrameRate": 10,
                       "displayDownsample": 2, }
 
