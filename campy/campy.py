@@ -75,6 +75,9 @@ def UnpackParamLists(cam_params, n_cam):
     the ith camera"""
     for key in cam_params.keys():
         if isinstance(cam_params[key], list):
+            if key == 'ffmpegPath':
+                continue
+
             if len(params[key]) == params["numCams"]:
                 cam_params[key] = cam_params[key][n_cam]
             else:
