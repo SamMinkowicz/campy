@@ -98,11 +98,13 @@ def CreateCamParams(params, systems, n_cam):
                       "displayDownsample": 2, }
 
     cam_params = OptParams(params, cam_params, default_params)
+    cam_make = cam_params['cameraMake']
+    cam_selection = cam_params['cameraSelection']
     try:
-        cam_params["device"] = systems[cam_params["cameraMake"]]["deviceList"][cam_params["cameraSelection"]]
-        cam_params["cameraSerialNo"] = systems[cam_params["cameraMake"]]["serials"][cam_params["cameraSelection"]]
+        cam_params["device"] = systems[cam_make]["deviceList"][cam_selection]
+        cam_params["cameraSerialNo"] = systems[cam_make]["serials"][cam_selection]
     except IndexError:
-        print(f'Did not find {cam_params["numCams"]} cameras. Exiting...')
+        print(f'User wants to record from {cam_params["numCams"]} cameras but only found {len(systems[cam_make]["serials"])} cameras. Exiting...')
         return
 
     return cam_params
