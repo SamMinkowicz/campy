@@ -205,6 +205,18 @@ def ParseClargs(parser):
         help="Frame width in pixels.",
     )
     parser.add_argument(
+        "--offsetX",
+        dest="offsetX",
+        type=int,
+        help="Width offset in pixels.",
+    )
+    parser.add_argument(
+        "--offsetY",
+        dest="offsetY",
+        type=int,
+        help="Height offset in pixels.",
+    )
+    parser.add_argument(
         "--cameraMake",
         dest="cameraMake",
         type=ast.literal_eval,

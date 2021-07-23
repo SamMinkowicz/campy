@@ -451,14 +451,14 @@ def ConfigureCustomImageSettings(cam_params, nodemap, cam_name):
             width_to_set = cam_params["frameWidth"]
             node_width.SetValue(width_to_set)
             print(f'Width set to {node_width.GetValue()}...')
-            offset_x = int((max_w-width_to_set)/2)
+            offset_x = cam_params['offsetX']
             if offset_x % 4 != 0:
                 print(f"offset_x = {offset_x} is not divisible by 4, this may create problems with the camera. offset_x will be "
                       "increased to the nearest value that is divisible by 4")
                 while offset_x % 4 != 0:
                     offset_x += 1
                 print(f"offset_x is set to {offset_x}")
-            cam_params["offset_x"] = offset_x
+                cam_params["offset_x"] = offset_x
             node_offset_x = PySpin.CIntegerPtr(nodemap.GetNode('OffsetX'))
             if PySpin.IsAvailable(node_offset_x) and PySpin.IsWritable(node_offset_x):
                 node_offset_x.SetValue(offset_x)
@@ -478,14 +478,14 @@ def ConfigureCustomImageSettings(cam_params, nodemap, cam_name):
             height_to_set = cam_params["frameHeight"]
             node_height.SetValue(height_to_set)
             print(f'Height set to {node_height.GetValue()}...')
-            offset_y = int((max_h-height_to_set)/2)
+            offset_y = cam_params['offsetY']
             if offset_y % 4 != 0:
                 print(f"offset_y = {offset_y} is not divisible by 4, this may create problems with the camera. offset_y will be "
                       "increased to the nearest value that is divisible by 4")
                 while offset_y % 4 != 0:
                     offset_y += 1
                 print(f"offset_y is set to {offset_y}\n")
-            cam_params["offset_y"] = offset_y
+                cam_params["offset_y"] = offset_y
             node_offset_y = PySpin.CIntegerPtr(nodemap.GetNode('OffsetY'))
             if PySpin.IsAvailable(node_offset_y) and PySpin.IsWritable(node_offset_y):
                 node_offset_y.SetValue(offset_y)
