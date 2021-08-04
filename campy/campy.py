@@ -85,6 +85,22 @@ def UnpackParamLists(cam_params, n_cam):
     return cam_params
 
 
+def UnpackCameraSpecificParams(cam_params):
+    """Get parameters that are specific to the given camera.
+       These are specified by the camera's serial number"""
+    cameraSerialNo = cam_params['cameraSerialNo']
+    for key in cam_params.keys():
+        if isinstance(cam_params[key], dict):
+            if key == 'allCameraSerialNumbers':
+                continue
+
+            try:
+                cam_params[key] = cam_params[key][int(cameraSerialNo)]
+            except KeyError:
+                print(f"No {key} found for camera with serial number {cameraSerialNo}")
+    return cam_params
+
+
 def FillWithDefaultParams(cam_params):
     """Assign default parameter if it isn't passed by user"""
     default_params = {"frameRate": 100,
@@ -115,7 +131,6 @@ def CreateCamParams(params, systems, n_cam):
     cam_params = params
     cam_params["n_cam"] = n_cam
     cam_params["baseFolder"] = os.getcwd()
-    cam_params["cameraName"] = params["cameraNames"][n_cam]
 
     # unpack parameter lists
     cam_params = UnpackParamLists(cam_params, n_cam)
@@ -132,6 +147,9 @@ def CreateCamParams(params, systems, n_cam):
     except IndexError:
         print(f'User wants to record from {cam_params["numCams"]} cameras but only found {len(systems[cam_make]["serials"])} cameras. Exiting...')
         return
+
+    # get camera specific parameters
+    cam_params = UnpackCameraSpecificParams(cam_params)
 
     return cam_params
 
@@ -169,8 +187,8 @@ def ParseClargs(parser):
         help="Number of cameras.",
     )
     parser.add_argument(
-        "--cameraNames",
-        dest="cameraNames",
+        "--cameraName",
+        dest="cameraName",
         type=ast.literal_eval,
         help="Names assigned to the cameras in the order of cameraSelection.",
     )
@@ -359,6 +377,12 @@ def ParseClargs(parser):
         dest="arduinoBaudRate",
         type=int,
         help="Arduino baud rate.",
+    )
+    parser.add_argument(
+        "--allCameraSerialNumbers",
+        dest="allCameraSerialNumbers",
+        type=dict,
+        help="Camera serial numbers",
     )
     clargs = parser.parse_args()
     return clargs

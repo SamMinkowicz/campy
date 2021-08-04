@@ -238,7 +238,7 @@ def CloseSystems(params, systems):
         cam_params["cameraMake"] = makes[m]
         system = systems[makes[m]]["system"]
         device_list = systems[makes[m]]["deviceList"]
-        cam_name = params['cameraNames'][m]
+        cam_name = params['cameraName']
         cam = ImportCam(cam_params)
         try:
             cam.CloseSystem(system, device_list)
