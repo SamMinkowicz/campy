@@ -342,6 +342,18 @@ def ParseClargs(parser):
         help="Gamma correction disabling. Only used for FLIR cameras",
     )
     parser.add_argument(
+        "--gamma",
+        dest="gamma",
+        type=str,
+        help="Gamma correction. Only used for FLIR cameras",
+    )
+    parser.add_argument(
+        "--blackLevel",
+        dest="blackLevel",
+        type=str,
+        help=". Only used for FLIR cameras",
+    )
+    parser.add_argument(
         "--grabTimeOutInMilliseconds",
         dest="grabTimeOutInMilliseconds",
         type=int,

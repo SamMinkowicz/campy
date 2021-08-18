@@ -211,13 +211,13 @@ def configure_gain(cam, gain: float, cam_name):
     return result
 
 
-def disable_gamma(cam, cam_name):
-    """This function disables the gamma correction.
+def configure_gamma(cam, cam_name, disable_gamma, gamma):
+    """This function configures the gamma correction.
      :param cam: Camera to disable gamma correction.
      :type cam: CameraPtr
      """
 
-    print(f'*** DISABLING GAMMA CORRECTION for {cam_name} ***')
+    print(f'*** CONFIGURING GAMMA CORRECTION for {cam_name} ***')
 
     try:
         result = True
@@ -229,18 +229,45 @@ def disable_gamma(cam, cam_name):
         node_gamma_enable_bool = PySpin.CBooleanPtr(nodemap.GetNode("GammaEnable"))
 
         if not PySpin.IsAvailable(node_gamma_enable_bool) or not PySpin.IsWritable(node_gamma_enable_bool):
-            print('Unable to disable gamma (boolean retrieval). Aborting...')
+            print('Unable to configure gamma (boolean retrieval). Aborting...')
             return False
 
-        # Set value to False (disable gamma correction)
-        node_gamma_enable_bool.SetValue(False)
-        print('Gamma correction disabled.\n')
+        node_gamma_enable_bool.SetValue(not disable_gamma)
+
+        if disable_gamma:
+            print('Gamma correction disabled.\n')
+        else:
+            node_gamma = PySpin.CFloatPtr(nodemap.GetNode("Gamma"))
+            if not PySpin.IsAvailable(node_gamma) or not PySpin.IsWritable(node_gamma):
+                print('Unable to set gamma (int retrieval). Aborting...')
+                return False
+
+            node_gamma.SetValue(gamma)
+            print(f'Gamma set to {gamma}.\n')
 
     except PySpin.SpinnakerException as ex:
-        print('Error: %s' % ex)
+        print(f'Error: {ex}')
         return False
 
     return result
+
+
+def configure_black_level(cam, cam_name, black_level):
+    """configure black level"""
+    print(f'*** CONFIGURING BLACK LEVEL for {cam_name} ***')
+
+    # Retrieve GenICam nodemap (nodemap)
+    nodemap = cam.GetNodeMap()
+
+    node_black_level = PySpin.CIntegerPtr(nodemap.GetNode("BlackLevel"))
+    if not PySpin.IsAvailable(node_black_level) or not PySpin.IsWritable(node_black_level):
+        print('Unable to set black level (int retrieval). Aborting...')
+        return False
+
+    node_black_level.SetValue(black_level)
+    print(f'Black level set to set to {black_level}.\n')
+
+    return True
 
 
 def configure_buffer(cam, cam_name, bufferMode='OldestFirst', bufferSize=100):
@@ -689,11 +716,9 @@ def LoadSettings(cam_params, camera):
     else:
         raise Exception('Could not configure exposure!')
 
-    if cam_params['disableGamma']:
-        if disable_gamma(cam=camera, cam_name=cam_name):
-            print('Gamma disabled successfully.')
-        else:
-            raise Exception('Could not disable gamma!')
+    configure_gamma(camera, cam_name, cam_params['disableGamma'],
+                    cam_params['gamma'])
+    configure_black_level(camera, cam_name, cam_params['blackLevel'])
 
     return cam_params
 
