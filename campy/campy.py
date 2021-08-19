@@ -117,6 +117,7 @@ def FillWithDefaultParams(cam_params):
                       "codec": "h264",
                       "quality": "21",
                       "chunkLengthInSec": 60,
+                      "videoSplitLengthInSec": 0,
                       "displayFrameRate": 10,
                       "displayDownsample": 2}
 
@@ -395,6 +396,12 @@ def ParseClargs(parser):
         dest="allCameraSerialNumbers",
         type=dict,
         help="Camera serial numbers",
+    )
+    parser.add_argument(
+        "--videoSplitLengthInSec",
+        dest="videoSplitLengthInSec",
+        type=int,
+        help="Split the videos into videos of this length in seconds. Leave equal to 0 for one video. Default is to write one video.",
     )
     clargs = parser.parse_args()
     return clargs
