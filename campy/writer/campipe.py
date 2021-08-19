@@ -94,7 +94,7 @@ def BuildFileName(cam_params, splittingVideos=False, video_number=0):
     return '_'.join((file_name, cam_params['videoFilename']))
 
 
-def GetWriterParams(cam_params, full_file_name):
+def GetWriterParams(cam_params):
     # Load defaults
     pix_fmt_out = cam_params["pixelFormatOutput"]
     codec = cam_params["codec"]
