@@ -1,0 +1,70 @@
+# Camera serial numbers
+allCameraSerialNumbers:
+  right_cam_serial: &right_cam_serial 18285762
+  middle_cam_serial: &middle_cam_serial 19346516
+  left_cam_serial: &left_cam_serial 19346526
+
+# Recording parameters
+videoFolder:
+  *left_cam_serial: 'D:\sam\left'
+  *middle_cam_serial: 'E:\sam\middle'
+  *right_cam_serial: 'F:\sam\right'
+videoFilename: "0.mp4"
+frameRate: 125
+recTimeInSec: 60
+videoSplitLengthInSec: 360
+
+# Camera parameters
+cameraMake: "flir"
+numCams: 3
+cameraSelection: [0, 1, 2]
+cameraName:
+  *left_cam_serial: 'cam_left'
+  *middle_cam_serial: 'cam_middle'
+  *right_cam_serial: 'cam_right'
+
+# Compression parameters
+ffmpegLogLevel: "quiet"
+gpuID: [0, 0, 0]
+gpuMake: "nvidia"
+codec: "h264"
+quality: "21"
+
+# Display parameters
+displayVideos: True
+chunkLengthInSec: 60
+displayFrameRate: 10
+displayDownsample: 3
+
+# Other parameters
+pixelFormatInput: "bayer_rggb8" # "bayer_bggr8" "rgb24"
+pixelFormatOutput: "rgb0"
+ffmpegPath: [] #["/home/usr/Documents/ffmpeg/ffmpeg"]
+frameWidth: 1440
+frameHeight: 608
+offsetX: 0
+offsetY:
+  *left_cam_serial: 240
+  *middle_cam_serial: 376
+  *right_cam_serial: 240
+exposureTimeInUs: 3000
+# gain:
+#   *left_cam_serial: 30
+#   *middle_cam_serial: 30
+#   *right_cam_serial: 35
+gain: 30
+gamma: 0.6
+blackLevel: 0
+bufferMode: "OldestFirst"
+bufferSize: 50
+disableGamma: True
+grabTimeOutInMilliseconds: 5000
+
+triggerType: "hardware"
+cameraTrigger: "Line3"
+throughputLimit: 380000000
+
+# Arduino parameters
+controlRecordingTimeInArduino: True
+arduinoPort: 'COM3'
+arduinoBaudRate: 19200

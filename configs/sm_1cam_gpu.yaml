@@ -1,0 +1,47 @@
+# Recording parameters
+videoFolder: "./test"
+videoFilename: "0.mp4"
+frameRate: 150
+recTimeInSec: 900
+
+# Arduino parameters
+controlRecordingTimeInArduino: True
+arduinoPort: 'COM3'
+arduinoBaudRate: 19200
+
+# Camera parameters
+cameraMake: "flir"
+numCams: 1
+cameraSelection: [0]
+cameraName: 'Camera1'
+frameWidth: 1440
+frameHeight: 608
+offsetX: 0
+offsetY: 240
+exposureTimeInUs: 3000
+gain: 1.5
+bufferMode: "OldestFirst"
+bufferSize: 50
+disableGamma: True
+gamma: 0.6
+blackLevel: 0
+grabTimeOutInMilliseconds: 5000
+triggerType: "hardware"
+cameraTrigger: "Line3"
+throughputLimit: 380000000
+
+# Compression parameters
+ffmpegLogLevel: ["info"]
+gpuID: 0
+gpuMake: "nvidia"
+pixelFormatInput: "bayer_rggb8" # "bayer_bggr8" "rgb24"
+pixelFormatOutput: "rgb0"
+codec: "h264"
+quality: "21"
+ffmpegPath: [] #["/home/usr/Documents/ffmpeg/ffmpeg"]
+
+# Display parameters
+displayVideos: False
+chunkLengthInSec: 30
+displayFrameRate: 10
+displayDownsample: 2
